@@ -12,6 +12,12 @@ const OngSchema = new Schema({
     type: String
   },
 
+  cnpj: {
+    type: String,
+    required: true,
+    unique: true
+  },
+
   senha: {
     type: String
   },

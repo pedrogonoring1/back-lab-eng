@@ -18,7 +18,7 @@ import { json } from 'express';
 
   const create = async(user) =>{ 
     // try {
-      var usuario = await UsuarioModel.findOne({ email: user.email });
+      var usuario = await UsuarioModel.findOne({ cpf: user.cpf });
 
       if (usuario){
         throw new Error('User already exists');

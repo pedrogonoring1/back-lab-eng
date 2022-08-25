@@ -29,6 +29,11 @@ const UsuarioSchema = new Schema({
     unique: true
   },
   
+  cpf: {
+    type: Number,
+    required: true,
+    unique: true
+  },
 
   senha: {
     type: String,

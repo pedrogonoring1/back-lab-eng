@@ -29,8 +29,7 @@ import {createNovoEndereco} from '../repositories/EnderecoRepository'
 //   }
 
 const createOng = async(request, response) => { //= async (request: Request, response: Response): Promise<void> => {
-  console.log('entrou aqui')
-  console.log('entrou na rota')
+
   var ong = request.body.ong;
   var endereco = request.body.endereco;
 
@@ -42,7 +41,8 @@ const createOng = async(request, response) => { //= async (request: Request, res
 
     const createdOng = await create(ong);
     console.log(createdOng)
-    return response.status(201).json(createdOng);
+    if(createdOng == null || createdOng == undefined) return response.status(500).json({error: "O cadastro da ong já existe no banco de dados."})
+    else return response.status(201).json(createdOng);
   }
   else return response.status(500).json({error: createdEndereco})
 

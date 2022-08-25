@@ -31,8 +31,6 @@ import {createNovoEndereco} from '../repositories/EnderecoRepository'
   // }
 
   const createUsuario = async(request, response) => { //= async (request: Request, response: Response): Promise<void> => {
-    console.log('entrou aqui')
-    console.log('entrou na rota')
     var usuario = request.body.usuario;
     var endereco = request.body.endereco;
 
@@ -43,9 +41,10 @@ import {createNovoEndereco} from '../repositories/EnderecoRepository'
       usuario = {...usuario, idEndereco: createdEndereco._id}
 
       const createdUsuario = await create(usuario);
-        console.log(createdUsuario)
+      console.log(createdUsuario)
 
-      return response.status(201).json(createdUsuario);
+      if(createdUsuario == null || createdUsuario == undefined) return response.status(500).json({error: "O cadastro do usuário já existe no banco de dados."})
+      else return response.status(201).json(createdUsuario);
     } else return response.status(500).json({error: createdEndereco})
 
       // const createdEndereco = await this.enderecoRepository.create(endereco);

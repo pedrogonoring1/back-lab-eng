@@ -13,20 +13,21 @@ import { ongExistsError } from '../errors/errors';
 
   const create = async(ongInfo) => {
 
-    var ong = await OngModel.findOne({ email: ongInfo.email });
+    var ong = await OngModel.findOne({ cnpj: ongInfo.cnpj });
 
-    if (ong) throw new Error('Ong already exists');
+    if (ong) return undefined//throw new Error('Ong already exists');
     else{
       const newOng = new OngModel({
         nome:ongInfo.nome,
         email: ongInfo.email,
+        cnpj: ongInfo.cnpj,
         urlFoto: ongInfo.urlFoto,
         seloVerificado: ongInfo.seloVerificado,
         idEndereço: ongInfo.idEndereco
       });
       ong = await OngModel.create(newOng)
-  
-      return newOng;
+      console.log('ONG', ong)
+      return ong;
 
     }
   }
