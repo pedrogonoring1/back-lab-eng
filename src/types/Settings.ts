@@ -8,6 +8,7 @@ type Settings = {
   };
   version: string;
   environment?: string;
+  secret: string;
 };
 
 export default Settings;
