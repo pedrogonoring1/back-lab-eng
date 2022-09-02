@@ -1,4 +1,4 @@
-import Example from '../src/models/Example';
+import User from '../src/models/User';
 
 import { cleanCollection, setupDatabase, teardownDatabase } from './helpers/databaseControls';
 
@@ -15,5 +15,5 @@ beforeEach(async () => {
 });
 
 async function cleanDatabase() {
-  await Promise.all([cleanCollection(Example)]);
+  await Promise.all([cleanCollection(User)]);
 }

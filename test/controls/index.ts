@@ -1,3 +1,3 @@
-import { setupExample } from './setupExample';
+import { setupUser } from './setupUser';
 
-export { setupExample };
+export { setupUser };
