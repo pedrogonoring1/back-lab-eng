@@ -9,7 +9,7 @@ export interface IAdoptionSchema extends Document {
 
 const AdoptionSchema: Schema = new Schema({
   date: {
-    type: Date(),
+    type: Date,
     required: true,
   },
 

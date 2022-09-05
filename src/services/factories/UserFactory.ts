@@ -1,6 +1,7 @@
 import { injectable } from 'inversify';
 
 import { User } from '../../types/IUser';
+import { Address } from '../../types/IAddress';
 
 @injectable()
 export class UserFactory {
@@ -28,7 +29,7 @@ export class UserFactory {
       password,
       picture,
       verification,
-      address,
+      address
     };
   }
 }

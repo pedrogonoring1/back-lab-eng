@@ -2,18 +2,14 @@ import { inject, injectable } from 'inversify';
 import { Logger } from 'winston';
 import bcrypt from 'bcrypt';
 import createToken from '../middlewares/createToken';
-
+import transport from "../modules/mailer";
 import UserModel, { IUserSchema } from '../models/User';
 import Settings from '../types/Settings';
 import { User } from '../types/IUser';
-import { incorrectPassword, userExistsError, userNotFound, userNotVerified } from '../errors/errors';
+import { incorrectPassword, userExistsError, userNotFound, userNotVerified, sendingEmailError } from '../errors/errors';
 
-import JWT from 'jsonwebtoken';
+var jwt  = require('jsonwebtoken');
 import crypto from 'crypto';
-
-// import Token = from "../models/Token.model";
-// import sendEmail from "../utils/email/sendEmail";
-// const bcrypt = require("bcrypt");
 
 //ALTERAR .env
 const JWTSecret = process.env.JWT_SECRET;
@@ -25,23 +21,18 @@ export class UserRepository {
   @inject('Logger') logger!: Logger;
   @inject('Settings') settings: Settings;
 
-  async create(userInfo: User): Promise<User> {
+
+  async create(userInfo: User){
     try {
+      
       const user = await UserModel.findOne({ cpfOrCnpj: userInfo.cpfOrCnpj });
       if (user) throw userExistsError;
 
+      
       const newUser = await UserModel.create(userInfo);
-      // const newUser = new UserModel({
-      //   adopter: userInfo.adopter,
-      //   name: userInfo.name,
-      //   cpfOrCnpj: userInfo.cpfOrCnpj,
-      //   address: userInfo.address,
-      //   birthDate: userInfo.birthDate,
-      //   phone: userInfo.phone,
-      //   email: userInfo.email,
-      //   password: userInfo.password,
-      // });
       await newUser.save();
+      
+      newUser.password = undefined;
       return this.toUserObject(newUser);
     } catch (e) {
       this.logger.error(e);
@@ -51,17 +42,16 @@ export class UserRepository {
 
   async login(email: string, password: string): Promise<User> {
     try {
-      const user = await UserModel.findOne({ email });
+      const user = await UserModel.findOne({ email: email }).select('+password');
       if (!user) throw userNotFound;
 
       const correctPassword = await bcrypt.compare(password, String(user.password));
+      
       if (!correctPassword) throw incorrectPassword;
 
       if (!user.adopter && !user.verification) throw userNotVerified;
 
       user.password = undefined;
-      // const token = createToken(user._id);
-
       return this.toUserObject(user);
     } catch (e) {
       this.logger.error(e);
@@ -69,36 +59,48 @@ export class UserRepository {
     }
   }
 
-  private toUserObject(user: IUserSchema): User {
-    return {
-      id: user.id,
-      adopter: user.adopter,
-      adm: user.adm,
-      name: user.name,
-      cpfOrCnpj: user.cpfOrCnpj,
-      birthDate: user.birthDate,
-      phone: user.phone,
-      email: user.email,
-      password: undefined,
-      picture: user.picture,
-      verification: user.verification,
-      address: user.address,
-    };
-  }
+  async forgotPassword(email: string): Promise<User> {
+    try {
+        const user = await UserModel.findOne({ email: email });
+        
+        if (!user) throw userNotFound;
 
-  async signup(data: User): Promise<User> {
-    let user = await UserModel.findOne({ email: data.email });
-    if (user) {
-      throw new Error('Email already exist'); //, 422);
+        // const token = createToken(user._id);
+        // const now = new Date();
+        // now.setHours(now.getHours() + 1);
+
+        // await UserModel.findByIdAndUpdate(user.id, {
+        //     '$set': {
+        //         passwordResetToken: token,
+        //         passwordResetExpires: now,
+        //     }
+        // });
+
+        var randomPassword = Math.random().toString(36).slice(-8);
+
+        await UserModel.findByIdAndUpdate(user.id, {
+          '$set': {
+              password: randomPassword,
+          }
+      });
+
+        transport.sendMail({
+            to: email,
+            from: 'uvv.jpcampos@gmail.com',  //para aonde sera enviado este email
+            template: 'auth/forgot_password',
+            context: { randomPassword },
+        }, (err: any) => {
+            if (err) throw sendingEmailError;
+        });
+
+      return this.toUserObject(user);
+        
+    } catch (e) {
+      this.logger.error(e);
+      throw e;
     }
-    user = new UserModel(data);
-    // const token = this.JWT.sign({ id: user._id }, this.JWTSecret);
-    const token = createToken(user._id);
-    await user.save();
-
-    return this.toUserObject(user);
   }
-
+/*
   async requestPasswordReset(email: string): Promise<User> {
     const user = await UserModel.findOne({ email });
     if (!user) throw new Error('Email does not exist');
@@ -167,4 +169,24 @@ export class UserRepository {
   //   requestPasswordReset,
   //   resetPassword,
   // };
+  */
+
+  
+
+  private toUserObject(user: IUserSchema): User {
+    return {
+      id: user.id,
+      adopter: user.adopter,
+      adm: user.adm,
+      name: user.name,
+      cpfOrCnpj: user.cpfOrCnpj,
+      birthDate: user.birthDate,
+      phone: user.phone,
+      email: user.email,
+      password: undefined,
+      picture: user.picture,
+      verification: user.verification,
+      address: user.address,
+    };
+  }
 }

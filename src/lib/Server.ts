@@ -8,6 +8,7 @@ import { Logger } from 'winston';
 import helmet from 'helmet';
 import cors from 'cors';
 import http from 'http';
+import router from '../routes';
 
 import { UserController } from '../controllers/UserController';
 
@@ -32,7 +33,7 @@ class Server {
       .use(express.json())
       .use(express.urlencoded({ extended: true }))
       .use(cors())
-      .use('/user', userController.router)
+      .use('/', router)
       .use(this.authErrorHandler)
       .use(this.generalErrorHandler);
 

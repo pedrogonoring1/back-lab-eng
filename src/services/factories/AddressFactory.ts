@@ -4,21 +4,21 @@ import { Address } from '../../types/IAddress';
 
 @injectable()
 export class AddressFactory {
-  async call(
+  call = async (
     street: string,
     number: string,
     neighborhood: string,
     city: string,
     state: string,
     cep: string
-  ): Promise<Address> {
+  ): Promise<Address> => {
     return {
       street,
       number,
       neighborhood,
       city,
       state,
-      cep,
+      cep
     };
   }
 }

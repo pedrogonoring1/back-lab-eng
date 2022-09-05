@@ -31,19 +31,6 @@ export class DogController {
     }
   };
 
-  // login = async (request: Request, response: Response): Promise<void> => {
-  //   try {
-  //     const { email, password } = request.body.data;
-
-  //     const dog = await this.dogFactory.call(email, password);
-  //     const createdDog = await this.dogRepository.create(dog);
-
-  //     response.status(201).send({ data: createdDog });
-  //   } catch (e) {
-  //     this.errorHandler(e, response);
-  //   }
-  // };
-
   private errorHandler(e: any, response: Response): Response {
     if (e.name === 'DogExists') return response.status(409).send({ error: { detail: e.message } });
 

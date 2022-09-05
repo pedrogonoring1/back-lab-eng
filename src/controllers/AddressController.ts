@@ -12,19 +12,17 @@ export class AddressController {
   @inject(AddressFactory)
   private addressFactory: AddressFactory;
 
-  router: express.Application;
-
   constructor() {
-    this.router = express().post('/', this.create);
+    this.create = this.create.bind(this)
+    this.addressRepository = new AddressRepository()
+    this.addressFactory = new AddressFactory()
   }
 
   create = async (request: Request, response: Response): Promise<void> => {
     try {
-      const { street, number, neighborhood, city, state, cep } = request.body.data;
-
+      const { street, number, neighborhood, city, state, cep } = request.body;
       const address = await this.addressFactory.call(street, number, neighborhood, city, state, cep);
       const createdAddress = await this.addressRepository.create(address);
-
       response.status(201).send({ data: createdAddress });
     } catch (e) {
       this.errorHandler(e, response);
@@ -33,7 +31,8 @@ export class AddressController {
 
   private errorHandler(e: any, response: Response): Response {
     if (e.name === 'AddressExists') return response.status(409).send({ error: { detail: e.message } });
-
     return response.status(500).send({ error: { detail: 'Internal Server Error' } });
   }
+
 }
+export default new AddressController();

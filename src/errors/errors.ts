@@ -16,3 +16,6 @@ userNotFound.name = 'UserNotFound';
 
 export const userNotVerified = new Error('User Not Verified Yet');
 userNotVerified.name = 'userNotVerified';
+
+export const sendingEmailError = new Error('Sending Email Error');
+sendingEmailError.name = 'sendingEmailError';

@@ -2,6 +2,8 @@ import mongoose, { Schema, Document } from 'mongoose';
 import Dog from './Dog';
 import bcrypt from 'bcrypt';
 
+import { Address } from '../types/IAddress';
+
 export interface IUserSchema extends Document {
   adopter: boolean;
   adm: boolean;
@@ -38,7 +40,7 @@ const UserSchema: Schema = new Schema({
   },
 
   birthDate: {
-    type: Date(),
+    type: Date,
     required: true,
   },
 
@@ -60,6 +62,21 @@ const UserSchema: Schema = new Schema({
     select: false,
   },
 
+  passwordResetToken: {
+    type: String,
+    select: false,
+
+  },
+  passwordResetExpires: {
+      type: Date,
+      select: false,
+
+  },
+  createAt: {
+      type: Date,
+      default: Date.now,
+  },
+
   picture: {
     type: String,
     required: true,
@@ -72,24 +89,19 @@ const UserSchema: Schema = new Schema({
   },
 
   address: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Address',
+    type: String,
     required: true,
-  },
-
-  dogs: [Dog],
+  }
 });
 
-// UserSchema.pre('save', function (next) {
-//   const user = this;
-//   if (!user.isModified('password')) {
-//     return next();
-//   }
-
-//   bcrypt.hash(user.password, 10, (err, bcrypt) => {
-//     user.password = bcrypt;
-//     return next();
-//   });
-// });
+UserSchema.pre('save', function (next) {
+  if (!this.isModified('password')) {
+    return next();
+  }
+  bcrypt.hash(this.password, 10, (err, bcrypt) => {
+    this.password = bcrypt;
+    return next();
+  });
+});
 
 export default mongoose.model<IUserSchema>('User', UserSchema);

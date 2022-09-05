@@ -14,6 +14,7 @@ const settings: Settings = {
   },
   environment: process.env.ENVIRONMENT || process.env.NODE_ENV,
   version: packageJson.version,
+  secret: process.env.JWT_SECRET,
 };
 
 export default settings;
