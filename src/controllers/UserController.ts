@@ -4,6 +4,9 @@ import express, { Request, Response } from 'express';
 import { UserRepository } from '../repositories/UserRepository';
 import { UserFactory } from '../services/factories/UserFactory';
 
+import { AddressRepository } from '../repositories/AddressRepository';
+import { AddressFactory } from '../services/factories/AddressFactory';
+
 @injectable()
 export class UserController {
   @inject(UserRepository)
@@ -12,21 +15,39 @@ export class UserController {
   @inject(UserFactory)
   private userFactory: UserFactory;
 
-  router: express.Application;
+  @inject(AddressRepository)
+  private addressRepository: AddressRepository;
+
+  @inject(AddressFactory)
+  private addressFactory: AddressFactory;
 
   constructor() {
     this.create = this.create.bind(this);
+    this.addressRepository = new AddressRepository();
+    this.userRepository = new UserRepository();
+    this.addressFactory = new AddressFactory();
+    this.userFactory = new UserFactory();
     this.login = this.login.bind(this);
-    // this.router = express().post('/', this.create);
+    this.forgotPassword = this.forgotPassword.bind(this)
   }
 
   create = async (request: Request, response: Response): Promise<void> => {
     try {
-      const { adopter, adm, name, cpfOrCnpj, birthDate, phone, email, password, picture, verification, address } =
-        request.body.data;
+      const { street, number, neighborhood, city, state, cep } = request.body.address;
+      const address = await this.addressFactory.call(
+        street, 
+        number, 
+        neighborhood, 
+        city, 
+        state, 
+        cep
+      );
+      const createdAddress = await this.addressRepository.create(address);
+      var addressId = createdAddress.id;      
 
+      const { adopter, adm, name, cpfOrCnpj, birthDate, phone, email, password, picture, verification } = request.body.user;
       const user = await this.userFactory.call(
-        adopter,
+        adopter,  
         adm,
         name,
         cpfOrCnpj,
@@ -36,8 +57,9 @@ export class UserController {
         password,
         picture,
         verification,
-        address
+        addressId
       );
+      user.address = addressId;
       const createdUser = await this.userRepository.create(user);
 
       response.status(201).send({ data: createdUser });
@@ -48,12 +70,24 @@ export class UserController {
 
   login = async (request: Request, response: Response): Promise<void> => {
     try {
-      const { email, password } = request.body.data;
+      const { email, password } = request.body;
 
       // const user = await this.userFactory.call(email, password);
       const user = await this.userRepository.login(email, password);
 
       response.status(201).send({ data: user });
+    } catch (e) {
+      this.errorHandler(e, response);
+    }
+  };
+
+  //TODO integrar etapas de redefinição de senha na estrutura
+  forgotPassword = async (request: Request, response: Response): Promise<void> => {
+    try {
+      const { email } = request.body;
+      const result = await this.userRepository.forgotPassword(email);
+
+      response.status(201).send({ data: result });
     } catch (e) {
       this.errorHandler(e, response);
     }
@@ -67,83 +101,3 @@ export class UserController {
 }
 
 export default new UserController();
-
-// /* eslint-disable @typescript-eslint/no-explicit-any */
-// import createToken from '../middlewares/createToken';
-// import bcrypt from 'bcrypt';
-// import { IUserSchema, UserModel } from '../models/user';
-
-// export default {
-//   async login(req: { body: IUserSchema }, res: any) {
-//     const { email, password } = req.body;
-//     if (!email || !password) {
-//       return res.status(400).json({
-//         success: false,
-//         message: 'Dados inválidos',
-//       });
-//     }
-//     try {
-//       UserModel.findOne({ email }, (error: any, user: IUserSchema) => {
-//         if (error) {
-//           return res.status(400).json({
-//             success: false,
-//             message: 'Erro ao tentar buscar os dados',
-//           });
-//         }
-//         if (!user) {
-//           return res.status(400).json({
-//             success: false,
-//             message: 'Login inválido',
-//           });
-//         }
-//         bcrypt.compare(password, String(user.password), (error, same) => {
-//           if (!same) {
-//             return res.status(400).json({
-//               success: false,
-//               message: 'Login inválido',
-//             });
-//           }
-//           if (error) {
-//             return res.status(401).json({
-//               success: false,
-//               message: 'Não autorizado',
-//             });
-//           }
-
-//           user.password = undefined;
-
-//           return res.status(200).json({
-//             success: true,
-//             message: 'Login realizado com sucesso',
-//             user,
-//             token: createToken(user._id),
-//           });
-//         });
-//       }).select('+password');
-//     } catch (error) {
-//       return res.status(400).json({
-//         success: false,
-//         message: 'Erro ao tentar realizar o login',
-//       });
-//     }
-//   },
-//   async register(req: { body: IUserSchema }, res: any) {
-//     try {
-//       const user = await UserModel.create(req.body);
-
-//       (user as IUserSchema).password = undefined;
-//       return res.status(201).json({
-//         success: true,
-//         message: 'Usúario criado com sucesso.',
-//         user,
-//         token: createToken(String(user._id)),
-//       });
-//     } catch (error) {
-//       return res.status(400).json({
-//         success: false,
-//         message: 'Erro ao tentar criar o usúario.',
-//         error,
-//       });
-//     }
-//   },
-// };

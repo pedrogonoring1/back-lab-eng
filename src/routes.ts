@@ -1,22 +1,17 @@
 import express from 'express';
+import AddressController from './controllers/AddressController';
 import UserController from './controllers/UserController';
-
-// private user: UserController = new UserController();
-
-// let user = new UserCont  roller();
 
 const router = express.Router();
 
 router.post('/user/create', UserController.create);
+router.post('/user/login', UserController.login);
+router.put('/user/refinirSenha', UserController.forgotPassword)
+
+
+
+router.post('/address/create', AddressController.create);
 // router.post('/dog/create', DogController.create)
 
+
 export default router;
-
-// import express from 'express';
-// import userController from './controllers/userController';
-// const routes = express.Router();
-
-// routes.post('/user/login', userController.login);
-// routes.post('/user/register', userController.register);
-
-// export default routes;

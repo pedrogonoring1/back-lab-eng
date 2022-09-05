@@ -1,3 +1,6 @@
+
+import { Address } from './IAddress';
+
 export interface User {
   id?: string;
   adopter: boolean;
