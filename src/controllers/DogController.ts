@@ -3,6 +3,7 @@ import express, { Request, Response } from 'express';
 
 import { DogRepository } from '../repositories/DogRepository';
 import { DogFactory } from '../services/factories/DogFactory';
+import { AuthenticationMiddleware } from '../middlewares/AuthenticationMiddleware';
 
 @injectable()
 export class DogController {
@@ -14,8 +15,8 @@ export class DogController {
 
   router: express.Application;
 
-  constructor() {
-    this.router = express().post('/', this.create);
+  constructor(@inject(AuthenticationMiddleware) authMiddleware: AuthenticationMiddleware) {
+    this.router = express().use(authMiddleware.apply).post('/create', this.create);
   }
 
   create = async (request: Request, response: Response): Promise<void> => {

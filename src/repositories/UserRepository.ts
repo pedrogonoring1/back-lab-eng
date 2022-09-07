@@ -1,15 +1,10 @@
 import { inject, injectable } from 'inversify';
 import { Logger } from 'winston';
-import bcrypt from 'bcrypt';
-import createToken from '../middlewares/createToken';
-import transport from "../modules/mailer";
+import transport from '../modules/mailer';
 import UserModel, { IUserSchema } from '../models/User';
 import Settings from '../types/Settings';
 import { User } from '../types/IUser';
-import { incorrectPassword, userExistsError, userNotFound, userNotVerified, sendingEmailError } from '../errors/errors';
-
-var jwt  = require('jsonwebtoken');
-import crypto from 'crypto';
+import { sendingEmailError, userExistsError, userNotFoundError } from '../errors/errors';
 
 //ALTERAR .env
 const JWTSecret = process.env.JWT_SECRET;
@@ -21,18 +16,15 @@ export class UserRepository {
   @inject('Logger') logger!: Logger;
   @inject('Settings') settings: Settings;
 
-
-  async create(userInfo: User){
+  async create(userInfo: User) {
     try {
-      
-      const user = await UserModel.findOne({ cpfOrCnpj: userInfo.cpfOrCnpj });
+      const user = await UserModel.findOne({ $or: [{ cpfOrCnpj: userInfo.cpfOrCnpj }, { email: userInfo.email }] });
+
       if (user) throw userExistsError;
 
-      
       const newUser = await UserModel.create(userInfo);
       await newUser.save();
-      
-      newUser.password = undefined;
+
       return this.toUserObject(newUser);
     } catch (e) {
       this.logger.error(e);
@@ -40,18 +32,12 @@ export class UserRepository {
     }
   }
 
-  async login(email: string, password: string): Promise<User> {
+  async findByEmail(email: string): Promise<User> {
     try {
       const user = await UserModel.findOne({ email: email }).select('+password');
-      if (!user) throw userNotFound;
 
-      const correctPassword = await bcrypt.compare(password, String(user.password));
-      
-      if (!correctPassword) throw incorrectPassword;
+      if (!user) throw userNotFoundError;
 
-      if (!user.adopter && !user.verification) throw userNotVerified;
-
-      user.password = undefined;
       return this.toUserObject(user);
     } catch (e) {
       this.logger.error(e);
@@ -61,46 +47,48 @@ export class UserRepository {
 
   async forgotPassword(email: string): Promise<User> {
     try {
-        const user = await UserModel.findOne({ email: email });
-        
-        if (!user) throw userNotFound;
+      const user = await UserModel.findOne({ email: email });
 
-        // const token = createToken(user._id);
-        // const now = new Date();
-        // now.setHours(now.getHours() + 1);
+      if (!user) throw userNotFoundError;
 
-        // await UserModel.findByIdAndUpdate(user.id, {
-        //     '$set': {
-        //         passwordResetToken: token,
-        //         passwordResetExpires: now,
-        //     }
-        // });
+      // const token = createToken(user._id);
+      // const now = new Date();
+      // now.setHours(now.getHours() + 1);
 
-        var randomPassword = Math.random().toString(36).slice(-8);
+      // await UserModel.findByIdAndUpdate(user.id, {
+      //     '$set': {
+      //         passwordResetToken: token,
+      //         passwordResetExpires: now,
+      //     }
+      // });
 
-        await UserModel.findByIdAndUpdate(user.id, {
-          '$set': {
-              password: randomPassword,
-          }
+      const randomPassword = Math.random().toString(36).slice(-8);
+
+      await UserModel.findByIdAndUpdate(user.id, {
+        $set: {
+          password: randomPassword,
+        },
       });
 
-        transport.sendMail({
-            to: email,
-            from: 'uvv.jpcampos@gmail.com',  //para aonde sera enviado este email
-            template: 'auth/forgot_password',
-            context: { randomPassword },
-        }, (err: any) => {
-            if (err) throw sendingEmailError;
-        });
+      transport.sendMail(
+        {
+          to: email,
+          from: 'uvv.jpcampos@gmail.com', //para aonde sera enviado este email
+          template: 'auth/forgot_password',
+          context: { randomPassword },
+        },
+        (err: any) => {
+          if (err) throw sendingEmailError;
+        }
+      );
 
       return this.toUserObject(user);
-        
     } catch (e) {
       this.logger.error(e);
       throw e;
     }
   }
-/*
+  /*
   async requestPasswordReset(email: string): Promise<User> {
     const user = await UserModel.findOne({ email });
     if (!user) throw new Error('Email does not exist');
@@ -171,8 +159,6 @@ export class UserRepository {
   // };
   */
 
-  
-
   private toUserObject(user: IUserSchema): User {
     return {
       id: user.id,
@@ -183,10 +169,10 @@ export class UserRepository {
       birthDate: user.birthDate,
       phone: user.phone,
       email: user.email,
-      password: undefined,
+      password: user.password ? user.password : undefined,
       picture: user.picture,
-      verification: user.verification,
-      address: user.address,
+      verified: user.verified,
+      addressId: user.addressId,
     };
   }
 }

@@ -7,15 +7,20 @@ dogExistsError.name = 'DogExists';
 export const adoptionExistsError = new Error('Adoption already exists');
 adoptionExistsError.name = 'AdoptionExists';
 
-export const userNotFound = new Error('User not found');
-userNotFound.name = 'UserNotFound';
+export const userNotFoundError = new Error('User not found');
+userNotFoundError.name = 'UserNotFound';
 
-export const incorrectPassword = new Error('Incorrect Password');
-incorrectPassword.name = 'incorrectPassword';
-userNotFound.name = 'UserNotFound';
+export const incorrectPasswordError = new Error('Incorrect Password');
+incorrectPasswordError.name = 'IncorrectPassword';
 
-export const userNotVerified = new Error('User Not Verified Yet');
-userNotVerified.name = 'userNotVerified';
+export const userNotVerifiedError = new Error('User Not Verified Yet');
+userNotVerifiedError.name = 'UserNotVerified';
 
 export const sendingEmailError = new Error('Sending Email Error');
-sendingEmailError.name = 'sendingEmailError';
+sendingEmailError.name = 'SendingEmail';
+
+export const invalidCpfOrCnpjError = new Error('Invalid CPF or CNPJ');
+invalidCpfOrCnpjError.name = 'InvalidCpfOrCnpj';
+
+export const invalidEmailError = new Error('Invalid email');
+invalidEmailError.name = 'InvalidEmail';

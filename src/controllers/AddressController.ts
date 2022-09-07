@@ -12,10 +12,10 @@ export class AddressController {
   @inject(AddressFactory)
   private addressFactory: AddressFactory;
 
+  router: express.Application;
+
   constructor() {
-    this.create = this.create.bind(this)
-    this.addressRepository = new AddressRepository()
-    this.addressFactory = new AddressFactory()
+    this.router = express().post('/address/create', this.create);
   }
 
   create = async (request: Request, response: Response): Promise<void> => {
@@ -33,6 +33,4 @@ export class AddressController {
     if (e.name === 'AddressExists') return response.status(409).send({ error: { detail: e.message } });
     return response.status(500).send({ error: { detail: 'Internal Server Error' } });
   }
-
 }
-export default new AddressController();

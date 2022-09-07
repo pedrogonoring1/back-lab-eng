@@ -13,9 +13,6 @@ export class DogRepository {
 
   async create(dogInfo: Dog): Promise<Dog> {
     try {
-      const dog = await DogModel.findOne({ id: dogInfo.id }); //verificação vai ocorrer pelo id? se n, por ql atributo?
-      if (dog) throw dogExistsError;
-
       const newDog = await DogModel.create(dogInfo);
       // const newDog = new DogModel({
       //   adopter: dogInfo.adopter,
@@ -28,14 +25,14 @@ export class DogRepository {
       //   password: dogInfo.password,
       // });
       await newDog.save();
-      return this.toUserObject(newDog);
+      return this.toDogObject(newDog);
     } catch (e) {
       this.logger.error(e);
       throw e;
     }
   }
 
-  private toUserObject(dog: IDogSchema): Dog {
+  private toDogObject(dog: IDogSchema): Dog {
     return {
       id: dog.id,
       name: dog.name,

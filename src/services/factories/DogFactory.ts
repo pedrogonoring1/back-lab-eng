@@ -7,8 +7,8 @@ export class DogFactory {
   async call(
     name: string,
     age: number,
-    gender: number,
-    size: number,
+    gender: string,
+    size: string,
     history: string,
     picture: string,
     adopted: boolean

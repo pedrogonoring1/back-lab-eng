@@ -1,8 +1,5 @@
 import mongoose, { Schema, Document } from 'mongoose';
-import Dog from './Dog';
 import bcrypt from 'bcrypt';
-
-import { Address } from '../types/IAddress';
 
 export interface IUserSchema extends Document {
   adopter: boolean;
@@ -12,10 +9,10 @@ export interface IUserSchema extends Document {
   birthDate: Date;
   phone: string;
   email: string;
-  password: string | undefined;
+  password?: string;
   picture: string;
-  verification: boolean;
-  address: string;
+  verified: boolean;
+  addressId: string;
 }
 
 const UserSchema: Schema = new Schema({
@@ -46,7 +43,6 @@ const UserSchema: Schema = new Schema({
 
   phone: {
     type: String,
-    required: true,
   },
 
   email: {
@@ -65,33 +61,31 @@ const UserSchema: Schema = new Schema({
   passwordResetToken: {
     type: String,
     select: false,
-
   },
+
   passwordResetExpires: {
-      type: Date,
-      select: false,
-
+    type: Date,
+    select: false,
   },
-  createAt: {
-      type: Date,
-      default: Date.now,
+  createdAt: {
+    type: Date,
+    default: Date.now,
   },
 
   picture: {
     type: String,
-    required: true,
   },
 
-  verification: {
+  verified: {
     type: Boolean,
     required: true,
     default: false,
   },
 
-  address: {
-    type: String,
+  addressId: {
+    type: Schema.Types.ObjectId,
     required: true,
-  }
+  },
 });
 
 UserSchema.pre('save', function (next) {

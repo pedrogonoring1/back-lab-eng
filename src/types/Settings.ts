@@ -6,6 +6,7 @@ type Settings = {
   logger: {
     level: string;
   };
+  tokenKey: string;
   version: string;
   environment?: string;
   secret: string;

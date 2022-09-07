@@ -16,7 +16,6 @@ const AddressSchema: Schema = new Schema({
   },
   number: {
     type: String,
-    required: true,
   },
   neighborhood: {
     type: String,

@@ -8,9 +8,10 @@ import { Logger } from 'winston';
 import helmet from 'helmet';
 import cors from 'cors';
 import http from 'http';
-import router from '../routes';
 
 import { UserController } from '../controllers/UserController';
+import { AddressController } from '../controllers/AddressController';
+import { DogController } from '../controllers/DogController';
 
 @injectable()
 class Server {
@@ -22,7 +23,9 @@ class Server {
   constructor(
     @inject('Settings') settings: Settings,
     @inject('Logger') logger: Logger,
-    @inject(UserController) userController: UserController
+    @inject(UserController) userController: UserController,
+    @inject(AddressController) addressController: AddressController,
+    @inject(DogController) dogController: DogController
   ) {
     this.port = settings.port;
     this.logger = logger;
@@ -33,7 +36,9 @@ class Server {
       .use(express.json())
       .use(express.urlencoded({ extended: true }))
       .use(cors())
-      .use('/', router)
+      .use('/user', userController.router)
+      .use('/address', addressController.router)
+      .use('/dog', dogController.router)
       .use(this.authErrorHandler)
       .use(this.generalErrorHandler);
 

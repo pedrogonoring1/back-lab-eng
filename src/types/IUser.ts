@@ -1,6 +1,3 @@
-
-import { Address } from './IAddress';
-
 export interface User {
   id?: string;
   adopter: boolean;
@@ -10,8 +7,8 @@ export interface User {
   birthDate: Date;
   phone: string;
   email: string;
-  password: string;
+  password?: string;
   picture: string;
-  verification: boolean;
-  address: string;
+  verified: boolean;
+  addressId: string;
 }

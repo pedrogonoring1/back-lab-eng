@@ -1,11 +1,10 @@
 import mongoose, { Schema, Document } from 'mongoose';
-import Adoption from './Adoption';
 
 export interface IDogSchema extends Document {
   name: string;
   age: number;
-  gender: number;
-  size: number;
+  gender: string;
+  size: string;
   history: string;
   picture: string;
   adopted: boolean;
@@ -23,14 +22,12 @@ const DogSchema: Schema = new Schema({
   },
 
   gender: {
-    type: Number,
-    enum: ['Macho', 'Fêmea'],
+    type: String,
     required: true,
   },
 
   size: {
-    type: Number,
-    enum: ['Pequeno', 'Médio', 'Grande'],
+    type: String,
     required: true,
   },
 
@@ -44,15 +41,10 @@ const DogSchema: Schema = new Schema({
     required: true,
   },
 
-  shelter: {
-    type: String,
-    required: true,
-  },
-
   adopted: {
     type: Boolean,
     required: true,
-  }
+  },
 });
 
 export default mongoose.model<IDogSchema>('Dog', DogSchema);
