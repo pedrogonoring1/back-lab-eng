@@ -6,48 +6,37 @@ import { UserFactory } from '../services/factories/UserFactory';
 
 import { AddressRepository } from '../repositories/AddressRepository';
 import { AddressFactory } from '../services/factories/AddressFactory';
+import { LoginAuthorizer } from '../services/LoginAuthorizer';
+import { AddressFetcher } from '../services/AddressFetcher';
 
 @injectable()
 export class UserController {
-  @inject(UserRepository)
-  private userRepository: UserRepository;
+  @inject(UserRepository) userRepository: UserRepository;
+  @inject(UserFactory) userFactory: UserFactory;
+  @inject(AddressRepository) addressRepository: AddressRepository;
+  @inject(AddressFactory) addressFactory: AddressFactory;
+  @inject(LoginAuthorizer) loginAuthorizer: LoginAuthorizer;
+  @inject(AddressFetcher) addressFetcher: AddressFetcher;
 
-  @inject(UserFactory)
-  private userFactory: UserFactory;
-
-  @inject(AddressRepository)
-  private addressRepository: AddressRepository;
-
-  @inject(AddressFactory)
-  private addressFactory: AddressFactory;
+  router: express.Application;
 
   constructor() {
-    this.create = this.create.bind(this);
-    this.addressRepository = new AddressRepository();
-    this.userRepository = new UserRepository();
-    this.addressFactory = new AddressFactory();
-    this.userFactory = new UserFactory();
-    this.login = this.login.bind(this);
-    this.forgotPassword = this.forgotPassword.bind(this)
+    this.router = express()
+      .post('/create', this.create)
+      .post('/login', this.login)
+      .put('/reset-password', this.forgotPassword);
   }
 
   create = async (request: Request, response: Response): Promise<void> => {
     try {
-      const { street, number, neighborhood, city, state, cep } = request.body.address;
-      const address = await this.addressFactory.call(
-        street, 
-        number, 
-        neighborhood, 
-        city, 
-        state, 
-        cep
-      );
-      const createdAddress = await this.addressRepository.create(address);
-      var addressId = createdAddress.id;      
+      const { adopter, adm, name, cpfOrCnpj, birthDate, phone, email, password, picture, verified, cep } =
+        request.body.data;
 
-      const { adopter, adm, name, cpfOrCnpj, birthDate, phone, email, password, picture, verification } = request.body.user;
+      const address = await this.addressFetcher.apply(cep);
+      const createdAddress = await this.addressRepository.create(address);
+
       const user = await this.userFactory.call(
-        adopter,  
+        adopter,
         adm,
         name,
         cpfOrCnpj,
@@ -56,13 +45,13 @@ export class UserController {
         email,
         password,
         picture,
-        verification,
-        addressId
+        verified,
+        createdAddress.id
       );
-      user.address = addressId;
+
       const createdUser = await this.userRepository.create(user);
 
-      response.status(201).send({ data: createdUser });
+      response.status(201).send({ data: { ...createdUser, password: undefined } });
     } catch (e) {
       this.errorHandler(e, response);
     }
@@ -72,10 +61,11 @@ export class UserController {
     try {
       const { email, password } = request.body;
 
-      // const user = await this.userFactory.call(email, password);
-      const user = await this.userRepository.login(email, password);
+      const user = await this.userRepository.findByEmail(email);
 
-      response.status(201).send({ data: user });
+      const jwt = await this.loginAuthorizer.apply(user, password);
+
+      response.status(200).send({ data: { ...user, password: undefined, jwt } });
     } catch (e) {
       this.errorHandler(e, response);
     }
@@ -94,10 +84,19 @@ export class UserController {
   };
 
   private errorHandler(e: any, response: Response): Response {
-    if (e.name === 'UserExists') return response.status(409).send({ error: { detail: e.message } });
+    const BAD_REQUEST_ERRORS = [
+      'UserNotFound',
+      'IncorrectPassword',
+      'UserNotVerified',
+      'SendingEmail',
+      'InvalidCpfOrCnpj',
+      'InvalidEmail',
+      'UserExists',
+    ];
+
+    if (BAD_REQUEST_ERRORS.includes(e.name)) return response.status(400).send({ error: { details: e.message } });
 
     return response.status(500).send({ error: { detail: 'Internal Server Error' } });
   }
 }
 
-export default new UserController();

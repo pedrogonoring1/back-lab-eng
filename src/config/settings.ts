@@ -12,6 +12,7 @@ const settings: Settings = {
   logger: {
     level: process.env.LOG_LEVEL || 'info',
   },
+  tokenKey: process.env.TOKEN_KEY,
   environment: process.env.ENVIRONMENT || process.env.NODE_ENV,
   version: packageJson.version,
   secret: process.env.JWT_SECRET,
