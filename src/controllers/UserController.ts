@@ -94,7 +94,7 @@ export class UserController {
       'UserExists',
     ];
 
-    if (BAD_REQUEST_ERRORS.includes(e.name)) return response.status(400).send({ error: { details: e.message } });
+    if (BAD_REQUEST_ERRORS.includes(e.name)) return response.status(400).send({ error: { detail: e.message } });
 
     return response.status(500).send({ error: { detail: 'Internal Server Error' } });
   }

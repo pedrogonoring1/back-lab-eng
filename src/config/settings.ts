@@ -5,7 +5,7 @@ import Settings from '../types/Settings';
 const packageJson = require('../../package.json');
 
 const settings: Settings = {
-  port: parseInt(process.env.PORT || '3000'),
+  port: parseInt(process.env.PORT || '3003'),
   mongodb: {
     url: process.env.MONGODB_URL || 'mongodb://localhost:27017/dbname',
   },
