@@ -60,7 +60,7 @@ export class UserRepository {
         },
       });
 
-        //TESTADO
+        //SAD
       var mailOptions = {
         from: 'adotadoguvv@gmail.com',
         to: email,
