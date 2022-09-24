@@ -7,7 +7,7 @@ const packageJson = require('../../package.json');
 const settings: Settings = {
   port: parseInt(process.env.PORT || '3003'),
   mongodb: {
-    url: process.env.MONGODB_URL || 'mongodb://localhost:27017/dbname',
+    url: 'mongodb+srv://adocaodb:adminpassword@cluster0.bb8vjje.mongodb.net/?retryWrites=true&w=majority',
   },
   logger: {
     level: process.env.LOG_LEVEL || 'info',
