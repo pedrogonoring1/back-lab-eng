@@ -15,11 +15,13 @@ $ npm install
 ### Locally (Development)
 
 Copy the `example.env` to `.env`
+
 ```shell script
 cp example.env .env
 ```
 
 Run the `docker-compose.yml` to init the infrastructure services:
+
 ```shell script
 docker-compose up
 ```

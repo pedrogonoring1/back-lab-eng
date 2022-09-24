@@ -59,20 +59,25 @@ export class UserRepository {
         to: email,
         subject: 'Recuperar Senha',
         text: 'Ola Segue codigo para recuperação de senha',
-        html: `<html lang="pt">
+        html:
+          `<html lang="pt">
         <head>
             <meta charset="UTF-8">
         </head>
         <body>
-            <h3>Olá, `+ email + `!</h3>
+            <h3>Olá, ` +
+          email +
+          `!</h3>
             <p>Você solicitou a alteração da senha de sua conta na plataforma <strong>Adota Cão UVV</strong>.
             <br><br>Segue código de segurança para redefinição da senha:</p>
-            <h3>Código: `+ randomPassword +`</h3>
+            <h3>Código: ` +
+          randomPassword +
+          `</h3>
             <br>
             <a href="https://adotacao.com/">www.adotacao.com.br</a>
         </body>
-        </html>`
-    };
+        </html>`,
+      };
 
       sendMail(mailOptions);
 

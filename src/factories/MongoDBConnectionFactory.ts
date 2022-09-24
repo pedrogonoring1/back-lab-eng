@@ -5,7 +5,7 @@ import { injectable } from 'inversify';
 @injectable()
 class MongoDBConnectionFactory {
   async apply(settings: Settings): Promise<void> {
-    await mongoose.connect(settings.mongodb.url)//(settings.mongodb.url);
+    await mongoose.connect(settings.mongodb.url); //(settings.mongodb.url);
   }
 }
 

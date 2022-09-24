@@ -9,38 +9,35 @@ import mongoose, { Schema } from 'mongoose';
 // }
 
 const EnderecoSchema = new Schema({
-//   description: {
-//     type: String,
-//     required: true,
-//     unique: true,
-//   },
-  
+  //   description: {
+  //     type: String,
+  //     required: true,
+  //     unique: true,
+  //   },
+
   rua: {
     type: String,
-    required: true
+    required: true,
   },
 
   cidade: {
-    type: String, 
-    required: true
-
+    type: String,
+    required: true,
   },
 
   estado: {
     type: String,
-    required: true
+    required: true,
   },
 
   cep: {
     type: Number,
-    required: true
+    required: true,
   },
 
   numero: {
-    type: Number
-
-  }
-  
+    type: Number,
+  },
 });
 
 export default mongoose.model('Endereco', EnderecoSchema);

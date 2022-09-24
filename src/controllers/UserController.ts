@@ -99,4 +99,3 @@ export class UserController {
     return response.status(500).send({ error: { detail: 'Internal Server Error' } });
   }
 }
-
