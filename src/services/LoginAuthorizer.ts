@@ -18,7 +18,7 @@ export class LoginAuthorizer {
 
       if (!isPasswordCorrect) throw incorrectPasswordError;
 
-      const token = jwt.sign({ userId: user.id, email: user.email }, this.settings.tokenKey, {
+      const token = jwt.sign({ userId: user.id, email: user.email }, 'B7C4E1C1AD6A', {
         expiresIn: '2h',
       });
 
