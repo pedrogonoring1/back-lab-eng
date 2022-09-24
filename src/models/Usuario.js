@@ -1,5 +1,5 @@
 // import mongoose, { Schema } from 'mongoose';
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 // export interface UsuarioDocument extends Document {
@@ -12,44 +12,44 @@ const Schema = mongoose.Schema;
 // }
 
 const UsuarioSchema = new Schema({
-//   description: {
-//     type: String,
-//     required: true,
-//     unique: true,
-//   },
-  
+  //   description: {
+  //     type: String,
+  //     required: true,
+  //     unique: true,
+  //   },
+
   nome: {
     type: String,
-    required: true
+    required: true,
   },
 
   email: {
-    type: String, 
+    type: String,
     required: true,
-    unique: true
+    unique: true,
   },
-  
+
   cpf: {
     type: Number,
     required: true,
-    unique: true
+    unique: true,
   },
 
   senha: {
     type: String,
-    required: true
+    required: true,
   },
 
   telefone: {
-    type: Number
+    type: Number,
   },
 
   idade: {
-    type: Number
+    type: Number,
   },
 
   idEndereço: {
-    type: String
+    type: String,
   },
 });
 

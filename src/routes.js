@@ -8,13 +8,13 @@ const routes = express.Router();
 
 // import { UsuarioController } from './controllers/UsuarioController';
 
-const UsuarioController = require('./controllers/UsuarioController')
+const UsuarioController = require('./controllers/UsuarioController');
 // import {EnderecoController} from './controllers/EnderecoController'
-const OngController = require('./controllers/OngController')
+const OngController = require('./controllers/OngController');
 
 routes.post('/usuario/createUsuario', UsuarioController.createUsuario);
 
 // routes.post('/endereco/', EnderecoController.create)
-routes.post('/ong/createOng', OngController.createOng)
+routes.post('/ong/createOng', OngController.createOng);
 
 module.exports = routes;

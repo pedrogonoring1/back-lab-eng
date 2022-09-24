@@ -18,7 +18,7 @@ export class AddressFactory {
       neighborhood,
       city,
       state,
-      cep
+      cep,
     };
-  }
+  };
 }

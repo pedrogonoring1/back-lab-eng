@@ -11,15 +11,15 @@ export class AddressRepository {
   @inject('Logger') logger!: Logger;
   @inject('Settings') settings: Settings;
 
-  async create(addressInfo: Address){
+  async create(addressInfo: Address) {
     try {
-        //   const address = await AddressModel.findOne({ cpfOrCnpj: addressInfo.cep });
-        //   if (address) throw addressExistsError;
+      //   const address = await AddressModel.findOne({ cpfOrCnpj: addressInfo.cep });
+      //   if (address) throw addressExistsError;
 
-        const newAddress = await AddressModel.create(addressInfo);
-        await newAddress.save();
+      const newAddress = await AddressModel.create(addressInfo);
+      await newAddress.save();
 
-        return this.toAddressObject(newAddress);
+      return this.toAddressObject(newAddress);
     } catch (e) {
       this.logger.error(e);
       throw e;

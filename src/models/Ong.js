@@ -1,41 +1,37 @@
 import mongoose, { Schema } from 'mongoose';
 
 const OngSchema = new Schema({
-
-  
   nome: {
     type: String,
-    required: true
+    required: true,
   },
 
   email: {
-    type: String
+    type: String,
   },
 
   cnpj: {
     type: String,
     required: true,
-    unique: true
+    unique: true,
   },
 
   senha: {
-    type: String
+    type: String,
   },
 
   urlFoto: {
-    type: String
+    type: String,
   },
 
   seloVerificado: {
     type: Boolean,
-    required: true
+    required: true,
   },
 
   idEndereço: {
-    type: String
+    type: String,
   },
-
-  
 });
 
 export default mongoose.model('Ong', OngSchema);
