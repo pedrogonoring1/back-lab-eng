@@ -93,10 +93,6 @@ export class UserRepository {
     }
   }
 
-
-  
-  
-
   private toUserObject(user: IUserSchema): User {
     return {
       id: user.id,
