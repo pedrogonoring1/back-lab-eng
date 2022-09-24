@@ -4,7 +4,6 @@ import { Logger } from 'winston';
 import DogModel, { IDogSchema } from '../models/Dog';
 import Settings from '../types/Settings';
 import { Dog } from '../types/IDog';
-import { dogExistsError } from '../errors/errors';
 
 @injectable()
 export class DogRepository {

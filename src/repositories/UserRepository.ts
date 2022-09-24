@@ -6,11 +6,6 @@ import Settings from '../types/Settings';
 import { User } from '../types/IUser';
 import { sendingEmailError, userExistsError, userNotFoundError } from '../errors/errors';
 
-//ALTERAR .env
-const JWTSecret = process.env.JWT_SECRET;
-const bcryptSalt = process.env.BCRYPT_SALT;
-const clientURL = process.env.CLIENT_URL;
-
 @injectable()
 export class UserRepository {
   @inject('Logger') logger!: Logger;
