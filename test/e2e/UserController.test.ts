@@ -3,7 +3,7 @@ import 'reflect-metadata';
 // import { expect } from 'chai';
 // import request from 'supertest';
 
-// import { getTestContainer } from '../helpers/getTestContainer';
+// import { getTestContainer } from '../helpers/g etTestContainer';
 // import Server from '../../src/lib/Server';
 
 describe('UserController', () => {
