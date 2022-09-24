@@ -11,12 +11,15 @@ describe('UserFactory', () => {
       it('returns an user object', async () => {
         const user = await factory.call(
           true,
-          'abc123',
+          true,
           'abc123',
           'abc123',
           new Date('2016-05-18T16:00:00Z'),
           'abc123',
           'abc123',
+          'abc123',
+          'abc123',
+          true,
           'abc123'
         );
 
