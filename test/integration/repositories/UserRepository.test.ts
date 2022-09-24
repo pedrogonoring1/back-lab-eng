@@ -28,7 +28,7 @@ describe('UserRepository', () => {
           adopter: userInfo.adopter,
           name: userInfo.name,
           cpfOrCnpj: userInfo.cpfOrCnpj,
-          address: userInfo.address,
+          address: userInfo.addressId,
           birthDate: userInfo.birthDate,
           phone: userInfo.phone,
           email: userInfo.email,
