@@ -9,7 +9,7 @@ export async function setupUser(): Promise<IUserSchema> {
     adopter: chance.cf(),
     name: chance.cf(),
     cpfOrCnpj: chance.cf(),
-    address: chance.cf(),
+    addressId: chance.cf(),
     birthDate: chance.cf(),
     phone: chance.cf(),
     email: chance.cf(),

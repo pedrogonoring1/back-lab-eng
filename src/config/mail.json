@@ -1,6 +1,9 @@
 {
-    "host": "smtp.mailtrap.io",
-    "port": "2525" ,
-    "user": "fb89c9a2caef0f",
-    "pass": "d9af00cf65cbc2"
+  "host": "smtp.gmail.com",
+  "port": 465,
+  "user": "adotadoguvv@gmail.com",
+  "clientId": "667146587106-kahaoohfc7j18been90sgs0c5l5gn5lg.apps.googleusercontent.com",
+  "clienteSecret": "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",
+  "RefirectURI": "https://developers.google.com/oauthplayground",
+  "RefreshToken": "1//04xZD6YkNaV6yCgYIARAAGAQSNwF-L9IrYAIkvdHW3lq1FxjySTDay0BN1yb11_1DUxH7-AgC7vF0BEX4zOgFv-A4zncfDfA1LQo"
 }
