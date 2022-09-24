@@ -51,7 +51,6 @@ export class UserRepository {
 
       if (!user) throw userNotFoundError;
 
-
       const randomPassword = Math.random().toString(36).slice(-8);
 
       await UserModel.findByIdAndUpdate(user.id, {
@@ -60,19 +59,19 @@ export class UserRepository {
         },
       });
 
-        //SAD
-      var mailOptions = {
+      const mailOptions = {
         from: 'adotadoguvv@gmail.com',
         to: email,
         subject: 'Recuperar Senha',
         text: 'Ola Segue codigo para recuperação de senha',
-        html: `                <html lang="pt">
+        html: `<html lang="pt">
         <head>
             <meta charset="UTF-8">
         </head>
         <body>
             <h3>Olá, `+ email + `!</h3>
-            <p>Você solicitou a alteração da senha de sua conta na plataforma <strong>Adota Cão UVV</strong>. <br><br>Segue código de segurança para redefinição da senha:</p>
+            <p>Você solicitou a alteração da senha de sua conta na plataforma <strong>Adota Cão UVV</strong>.
+            <br><br>Segue código de segurança para redefinição da senha:</p>
             <h3>Código: `+ randomPassword +`</h3>
             <br>
             <a href="https://adotacao.com/">www.adotacao.com.br</a>
@@ -80,16 +79,12 @@ export class UserRepository {
         </html>`
     };
 
-
       sendMail(mailOptions);
-
-
-   
 
       return this.toUserObject(user);
     } catch (e) {
       this.logger.error(e);
-      throw e;
+      throw sendingEmailError;
     }
   }
 
