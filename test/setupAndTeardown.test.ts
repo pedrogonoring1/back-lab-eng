@@ -3,17 +3,17 @@ import User from '../src/models/User';
 import { cleanCollection, setupDatabase, teardownDatabase } from './helpers/databaseControls';
 
 before(async () => {
-  await setupDatabase();
+  // await setupDatabase();
 });
 
 after(async () => {
-  await teardownDatabase();
+  // await teardownDatabase();
 });
 
 beforeEach(async () => {
-  await cleanDatabase();
+  // await cleanDatabase();
 });
 
 async function cleanDatabase() {
-  await Promise.all([cleanCollection(User)]);
+  // await Promise.all([cleanCollection(User)]);
 }
