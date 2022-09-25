@@ -10,6 +10,6 @@ export const user: User = {
   email: 'abc123',
   password: 'abc123',
   adm: false,
-  picture: "abc123",
-  verified: true
+  picture: 'abc123',
+  verified: true,
 };

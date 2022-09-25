@@ -40,7 +40,7 @@ export class UserController {
 
       const user = await this.userFactory.call(
         adopter,
-        adm,        
+        adm,
         name,
         cpfOrCnpj,
         birthDate,
@@ -93,7 +93,7 @@ export class UserController {
       const user = await this.userRepository.findByEmail(email.email);
 
       const isPasswordCorrect = await compare(codigo, user.password);
-      
+
       if (!isPasswordCorrect) throw incorrectPasswordError;
 
       await this.userRepository.forgotPasswordFinish(user.id, senha);
@@ -103,7 +103,7 @@ export class UserController {
       this.errorHandler(e, response);
     }
   };
-  
+
   private errorHandler(e: any, response: Response): Response {
     const BAD_REQUEST_ERRORS = [
       'UserNotFound',

@@ -15,7 +15,7 @@ export class LoginAuthorizer {
   async apply(user: User, password: string): Promise<string> {
     try {
       const isPasswordCorrect = await compare(password, user.password);
-      
+
       if (!isPasswordCorrect) throw incorrectPasswordError;
 
       const token = jwt.sign({ userId: user.id, email: user.email }, 'B7C4E1C1AD6A', {
