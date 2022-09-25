@@ -8,6 +8,8 @@ import { AddressRepository } from '../repositories/AddressRepository';
 import { AddressFactory } from '../services/factories/AddressFactory';
 import { LoginAuthorizer } from '../services/LoginAuthorizer';
 import { AddressFetcher } from '../services/AddressFetcher';
+import { compare } from 'bcrypt';
+import { incorrectPasswordError } from '../errors/errors';
 
 @injectable()
 export class UserController {
@@ -24,7 +26,8 @@ export class UserController {
     this.router = express()
       .post('/create', this.create)
       .post('/login', this.login)
-      .put('/reset-password', this.forgotPassword);
+      .put('/reset-password', this.forgotPassword)
+      .put('/reset-password/finish', this.forgotPasswordFinish);
   }
 
   create = async (request: Request, response: Response): Promise<void> => {
@@ -37,7 +40,7 @@ export class UserController {
 
       const user = await this.userFactory.call(
         adopter,
-        adm,
+        adm,        
         name,
         cpfOrCnpj,
         birthDate,
@@ -83,6 +86,24 @@ export class UserController {
     }
   };
 
+  forgotPasswordFinish = async (request: Request, response: Response): Promise<void> => {
+    try {
+      const { email, codigo, senha } = request.body;
+
+      const user = await this.userRepository.findByEmail(email.email);
+
+      const isPasswordCorrect = await compare(codigo, user.password);
+      
+      if (!isPasswordCorrect) throw incorrectPasswordError;
+
+      await this.userRepository.forgotPasswordFinish(user.id, senha);
+
+      response.status(200).send({ data: { ...user, password: undefined } });
+    } catch (e) {
+      this.errorHandler(e, response);
+    }
+  };
+  
   private errorHandler(e: any, response: Response): Response {
     const BAD_REQUEST_ERRORS = [
       'UserNotFound',

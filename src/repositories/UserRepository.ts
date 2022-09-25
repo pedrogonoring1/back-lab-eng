@@ -5,6 +5,7 @@ import UserModel, { IUserSchema } from '../models/User';
 import Settings from '../types/Settings';
 import { User } from '../types/IUser';
 import { sendingEmailError, userExistsError, userNotFoundError } from '../errors/errors';
+import bcrypt from 'bcrypt';
 
 @injectable()
 export class UserRepository {
@@ -48,10 +49,12 @@ export class UserRepository {
 
       const randomPassword = Math.random().toString(36).slice(-8);
 
-      await UserModel.findByIdAndUpdate(user.id, {
-        $set: {
-          password: randomPassword,
-        },
+      bcrypt.hash(randomPassword, 10, async (err, bcrypt) => {
+        await UserModel.findByIdAndUpdate(user.id, {
+          $set: {
+            password: bcrypt,
+          },
+        });
       });
 
       const mailOptions = {
@@ -85,6 +88,21 @@ export class UserRepository {
     } catch (e) {
       this.logger.error(e);
       throw sendingEmailError;
+    }
+  }
+
+  async forgotPasswordFinish(idUsuario: string, senha: string): Promise<void> {
+    try {
+      bcrypt.hash(senha, 10, async (err, bcrypt) => {
+        return await UserModel.findByIdAndUpdate(idUsuario, {
+          $set: {
+            password: bcrypt,
+          },
+        });
+      });
+    } catch (error) {
+      this.logger.error(error);
+      throw error;
     }
   }
 
