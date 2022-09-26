@@ -26,7 +26,17 @@ export class AddressRepository {
     }
   }
 
-  private toAddressObject(address: IAddressSchema): Address {
+  async recuperarPorId(id: string): Promise<Address> {
+    try {
+      const address = await AddressModel.find({ _id: id });
+      return this.toAddressObject(address[0]);
+    } catch (error) {
+      this.logger.error(error);
+      throw error;
+    }
+  }
+
+  public toAddressObject(address: IAddressSchema): Address {
     return {
       id: address.id,
       street: address.street,

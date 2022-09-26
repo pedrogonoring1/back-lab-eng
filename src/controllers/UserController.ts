@@ -8,6 +8,8 @@ import { AddressRepository } from '../repositories/AddressRepository';
 import { AddressFactory } from '../services/factories/AddressFactory';
 import { LoginAuthorizer } from '../services/LoginAuthorizer';
 import { AddressFetcher } from '../services/AddressFetcher';
+import { compare } from 'bcrypt';
+import { incorrectPasswordError } from '../errors/errors';
 
 @injectable()
 export class UserController {
@@ -24,7 +26,10 @@ export class UserController {
     this.router = express()
       .post('/create', this.create)
       .post('/login', this.login)
-      .put('/reset-password', this.forgotPassword);
+      .put('/reset-password', this.forgotPassword)
+      .put('/reset-password/finish', this.forgotPasswordFinish)
+      .get('/recuperar-todas-ongs', this.recuperarTodasOngs)
+      .get('/recuperar-todas-ongs-nome/:nome', this.recuperarOngPorNome);
   }
 
   create = async (request: Request, response: Response): Promise<void> => {
@@ -78,6 +83,47 @@ export class UserController {
       const result = await this.userRepository.forgotPassword(email);
 
       response.status(201).send({ data: result });
+    } catch (e) {
+      this.errorHandler(e, response);
+    }
+  };
+
+  forgotPasswordFinish = async (request: Request, response: Response): Promise<void> => {
+    try {
+      const { email, codigo, senha } = request.body;
+
+      const user = await this.userRepository.findByEmail(email.email);
+
+      const isPasswordCorrect = await compare(codigo, user.password);
+
+      if (!isPasswordCorrect) throw incorrectPasswordError;
+
+      await this.userRepository.forgotPasswordFinish(user.id, senha);
+
+      response.status(200).send({ data: { ...user, password: undefined } });
+    } catch (e) {
+      this.errorHandler(e, response);
+    }
+  };
+
+  recuperarTodasOngs = async (response: Response): Promise<void> => {
+    try {
+      const user = await this.userRepository.recuperarTodasOngs();
+
+      response.status(200).send({ data: { ...user, password: undefined } });
+    } catch (e) {
+      this.errorHandler(e, response);
+    }
+  };
+
+  recuperarOngPorNome = async (request: Request, response: Response): Promise<void> => {
+    try {
+      const ongAlias = request.params['nome'].replace(/(^\w{1})|(\s+\w{1})/g, (letra) => letra.toUpperCase());
+      const regex = new RegExp(ongAlias, 'g');
+
+      const user = await this.userRepository.recuperarOngNome(regex);
+
+      response.status(200).send({ data: { ...user, password: undefined } });
     } catch (e) {
       this.errorHandler(e, response);
     }

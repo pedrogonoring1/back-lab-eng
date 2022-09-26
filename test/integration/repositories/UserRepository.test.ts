@@ -11,18 +11,14 @@ chai.use(chaiAsPromised);
 
 describe('UserRepository', () => {
   // const repository = getTestContainer().get(UserRepository);
-
   // let userInfo: User;
-
   // beforeEach(async () => {
   //   userInfo = { ...userFixture };
   // });
-
   // describe('#create', () => {
   //   describe('when the user does not exist', () => {
   //     it('stores the user object', async () => {
   //       const user = await repository.create(userInfo);
-
   //       expect(user).to.deep.eq({
   //         ...user,
   //         adopter: userInfo.adopter,
@@ -35,14 +31,11 @@ describe('UserRepository', () => {
   //         password: userInfo.password,
   //       });
   //     });
-
   //     describe('when the user exists', () => {
   //       let userObject: User;
-
   //       beforeEach(async () => {
   //         userObject = await repository.create(userInfo);
   //       });
-
   //       it('throws an error', async () => {
   //         await expect(repository.create(userObject)).to.be.rejectedWith('User already exists');
   //       });

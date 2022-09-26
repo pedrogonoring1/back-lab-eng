@@ -5,6 +5,9 @@ import UserModel, { IUserSchema } from '../models/User';
 import Settings from '../types/Settings';
 import { User } from '../types/IUser';
 import { sendingEmailError, userExistsError, userNotFoundError } from '../errors/errors';
+import bcrypt from 'bcrypt';
+import { Address } from '../types/IAddress';
+import { TodasOngsResponse } from '../models/responses/todasOngsResponse';
 
 @injectable()
 export class UserRepository {
@@ -48,10 +51,12 @@ export class UserRepository {
 
       const randomPassword = Math.random().toString(36).slice(-8);
 
-      await UserModel.findByIdAndUpdate(user.id, {
-        $set: {
-          password: randomPassword,
-        },
+      bcrypt.hash(randomPassword, 10, async (err, bcrypt) => {
+        await UserModel.findByIdAndUpdate(user.id, {
+          $set: {
+            password: bcrypt,
+          },
+        });
       });
 
       const mailOptions = {
@@ -86,6 +91,67 @@ export class UserRepository {
       this.logger.error(e);
       throw sendingEmailError;
     }
+  }
+
+  async forgotPasswordFinish(idUsuario: string, senha: string): Promise<void> {
+    try {
+      bcrypt.hash(senha, 10, async (err, bcrypt) => {
+        return await UserModel.findByIdAndUpdate(idUsuario, {
+          $set: {
+            password: bcrypt,
+          },
+        });
+      });
+    } catch (error) {
+      this.logger.error(error);
+      throw error;
+    }
+  }
+
+  async recuperarTodasOngs(): Promise<User[]> {
+    try {
+      const ongs = await UserModel.find({ adopter: false });
+
+      const ongsObject: User[] = [];
+
+      ongs.forEach((ong) => {
+        ongsObject.push(this.toUserObject(ong));
+      });
+
+      return ongsObject;
+    } catch (error) {
+      this.logger.error(error);
+      throw error;
+    }
+  }
+
+  async recuperarOngNome(nomeRegex: RegExp): Promise<User[]> {
+    try {
+      const ongs = await UserModel.find({ name: nomeRegex });
+
+      const ongsObject: User[] = [];
+
+      ongs.forEach((ong) => {
+        ongsObject.push(this.toUserObject(ong));
+      });
+
+      return ongsObject;
+    } catch (error) {
+      this.logger.error(error);
+      throw error;
+    }
+  }
+
+  public toTodasOngsObject(user: User, address: Address): TodasOngsResponse {
+    return new TodasOngsResponse({
+      id: user.id,
+      adopter: user.adopter,
+      name: user.name,
+      cpfOrCnpj: user.cpfOrCnpj,
+      picture: user.picture,
+      verified: user.verified,
+      address: address,
+    });
   }
 
   private toUserObject(user: IUserSchema): User {
