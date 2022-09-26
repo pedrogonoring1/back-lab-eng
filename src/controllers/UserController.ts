@@ -10,6 +10,9 @@ import { LoginAuthorizer } from '../services/LoginAuthorizer';
 import { AddressFetcher } from '../services/AddressFetcher';
 import { compare } from 'bcrypt';
 import { incorrectPasswordError } from '../errors/errors';
+import { TodasOngsResponse } from '../models/responses/todasOngsResponse';
+import Address from '../models/Address';
+import { User } from '../types/IUser';
 
 @injectable()
 export class UserController {
@@ -27,7 +30,9 @@ export class UserController {
       .post('/create', this.create)
       .post('/login', this.login)
       .put('/reset-password', this.forgotPassword)
-      .put('/reset-password/finish', this.forgotPasswordFinish);
+      .put('/reset-password/finish', this.forgotPasswordFinish)
+      .get('/recuperar-todas-ongs', this.recuperarTodasOngs)
+      .get('/recuperar-todas-ongs-nome/:nome', this.recuperarOngPorNome);
   }
 
   create = async (request: Request, response: Response): Promise<void> => {
@@ -97,6 +102,29 @@ export class UserController {
       if (!isPasswordCorrect) throw incorrectPasswordError;
 
       await this.userRepository.forgotPasswordFinish(user.id, senha);
+
+      response.status(200).send({ data: { ...user, password: undefined } });
+    } catch (e) {
+      this.errorHandler(e, response);
+    }
+  };
+
+  recuperarTodasOngs = async (request: Request, response: Response): Promise<void> => {
+    try {
+      const user = await this.userRepository.recuperarTodasOngs();
+
+      response.status(200).send({ data: { ...user, password: undefined } });
+    } catch (e) {
+      this.errorHandler(e, response);
+    }
+  };
+
+  recuperarOngPorNome = async (request: Request, response: Response): Promise<void> => {
+    try {
+      const ongAlias = request.params['nome'].replace(/(^\w{1})|(\s+\w{1})/g, (letra) => letra.toUpperCase());
+      const regex = new RegExp(ongAlias, 'g');
+
+      const user = await this.userRepository.recuperarOngNome(regex);
 
       response.status(200).send({ data: { ...user, password: undefined } });
     } catch (e) {
