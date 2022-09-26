@@ -10,9 +10,6 @@ import { LoginAuthorizer } from '../services/LoginAuthorizer';
 import { AddressFetcher } from '../services/AddressFetcher';
 import { compare } from 'bcrypt';
 import { incorrectPasswordError } from '../errors/errors';
-import { TodasOngsResponse } from '../models/responses/todasOngsResponse';
-import Address from '../models/Address';
-import { User } from '../types/IUser';
 
 @injectable()
 export class UserController {
@@ -109,7 +106,7 @@ export class UserController {
     }
   };
 
-  recuperarTodasOngs = async (request: Request, response: Response): Promise<void> => {
+  recuperarTodasOngs = async (response: Response): Promise<void> => {
     try {
       const user = await this.userRepository.recuperarTodasOngs();
 
