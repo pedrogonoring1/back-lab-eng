@@ -106,7 +106,7 @@ export class UserController {
     }
   };
 
-  recuperarTodasOngs = async (response: Response): Promise<void> => {
+  recuperarTodasOngs = async (request: Request, response: Response): Promise<void> => {
     try {
       const user = await this.userRepository.recuperarTodasOngs();
 
