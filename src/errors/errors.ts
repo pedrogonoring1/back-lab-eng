@@ -7,6 +7,9 @@ dogExistsError.name = 'DogExists';
 export const adoptionExistsError = new Error('Adoção já existe');
 adoptionExistsError.name = 'AdoptionExists';
 
+export const dogNotFoundError = new Error('Cachorro não foi encontrado');
+dogNotFoundError.name = 'DogNotFound';
+
 export const userNotFoundError = new Error('Usuário não foi encontrado');
 userNotFoundError.name = 'UserNotFound';
 

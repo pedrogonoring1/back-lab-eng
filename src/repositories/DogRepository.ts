@@ -4,7 +4,7 @@ import { Logger } from 'winston';
 import DogModel, { IDogSchema } from '../models/Dog';
 import Settings from '../types/Settings';
 import { Dog } from '../types/IDog';
-import { dogExistsError } from '../errors/errors';
+import { dogNotFoundError } from '../errors/errors';
 
 @injectable()
 export class DogRepository {
@@ -14,18 +14,53 @@ export class DogRepository {
   async create(dogInfo: Dog): Promise<Dog> {
     try {
       const newDog = await DogModel.create(dogInfo);
-      // const newDog = new DogModel({
-      //   adopter: dogInfo.adopter,
-      //   name: dogInfo.name,
-      //   cpfOrCnpj: dogInfo.cpfOrCnpj,
-      //   address: dogInfo.address,
-      //   birthDate: dogInfo.birthDate,
-      //   phone: dogInfo.phone,
-      //   email: dogInfo.email,
-      //   password: dogInfo.password,
-      // });
       await newDog.save();
       return this.toDogObject(newDog);
+    } catch (e) {
+      this.logger.error(e);
+      throw e;
+    }
+  }
+
+  async find(dogId: string): Promise<Dog> {
+    try {
+      const dog = await DogModel.findById(dogId);
+      if (!dog) throw dogNotFoundError;
+      return this.toDogObject(dog);
+    } catch (e) {
+      this.logger.error(e);
+      throw e;
+    }
+  }
+
+  async list(): Promise<Dog[]> {
+    try {
+      const dogs = await DogModel.find({});
+      if (!dogs) throw dogNotFoundError;
+      dogs.forEach((it) => this.toDogObject(it));
+      return dogs;
+    } catch (e) {
+      this.logger.error(e);
+      throw e;
+    }
+  }
+
+  async update(dogId: string, dogInfo: Dog): Promise<Dog> {
+    try {
+      const dog = await DogModel.findByIdAndUpdate(dogId, dogInfo);
+      if (!dog) throw dogNotFoundError;
+      return this.toDogObject(dog);
+    } catch (e) {
+      this.logger.error(e);
+      throw e;
+    }
+  }
+
+  async delete(dogId: string): Promise<Dog> {
+    try {
+      const dog = await DogModel.findByIdAndDelete(dogId);
+      if (!dog) throw dogNotFoundError;
+      return this.toDogObject(dog);
     } catch (e) {
       this.logger.error(e);
       throw e;

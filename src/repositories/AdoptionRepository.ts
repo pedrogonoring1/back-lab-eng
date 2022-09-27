@@ -15,18 +15,7 @@ export class AdoptionRepository {
     try {
       const adoption = await AdoptionModel.findOne({ id: adoptionInfo.id });
       if (adoption) throw adoptionExistsError;
-
       const newAdoption = await AdoptionModel.create(adoptionInfo);
-      // const newAdoption = new AdoptionModel({
-      //   adopter: adoptionInfo.adopter,
-      //   name: adoptionInfo.name,
-      //   cpfOrCnpj: adoptionInfo.cpfOrCnpj,
-      //   address: adoptionInfo.address,
-      //   birthDate: adoptionInfo.birthDate,
-      //   phone: adoptionInfo.phone,
-      //   email: adoptionInfo.email,
-      //   password: adoptionInfo.password,
-      // });
       await newAdoption.save();
       return this.toUserObject(newAdoption);
     } catch (e) {
