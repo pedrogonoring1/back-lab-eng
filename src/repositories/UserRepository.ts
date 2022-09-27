@@ -1,15 +1,13 @@
 import { inject, injectable } from 'inversify';
 import { Logger } from 'winston';
-import transport from '../modules/mailer';
+import { sendMail } from '../modules/mailer';
 import UserModel, { IUserSchema } from '../models/User';
 import Settings from '../types/Settings';
 import { User } from '../types/IUser';
 import { sendingEmailError, userExistsError, userNotFoundError } from '../errors/errors';
-
-//ALTERAR .env
-const JWTSecret = process.env.JWT_SECRET;
-const bcryptSalt = process.env.BCRYPT_SALT;
-const clientURL = process.env.CLIENT_URL;
+import bcrypt from 'bcrypt';
+import { Address } from '../types/IAddress';
+import { TodasOngsResponse } from '../models/responses/todasOngsResponse';
 
 @injectable()
 export class UserRepository {
@@ -51,113 +49,110 @@ export class UserRepository {
 
       if (!user) throw userNotFoundError;
 
-      // const token = createToken(user._id);
-      // const now = new Date();
-      // now.setHours(now.getHours() + 1);
-
-      // await UserModel.findByIdAndUpdate(user.id, {
-      //     '$set': {
-      //         passwordResetToken: token,
-      //         passwordResetExpires: now,
-      //     }
-      // });
-
       const randomPassword = Math.random().toString(36).slice(-8);
 
-      await UserModel.findByIdAndUpdate(user.id, {
-        $set: {
-          password: randomPassword,
-        },
+      bcrypt.hash(randomPassword, 10, async (err, bcrypt) => {
+        await UserModel.findByIdAndUpdate(user.id, {
+          $set: {
+            password: bcrypt,
+          },
+        });
       });
 
-      transport.sendMail(
-        {
-          to: email,
-          from: 'uvv.jpcampos@gmail.com', //para aonde sera enviado este email
-          template: 'auth/forgot_password',
-          context: { randomPassword },
-        },
-        (err: any) => {
-          if (err) throw sendingEmailError;
-        }
-      );
+      const mailOptions = {
+        from: 'adotadoguvv@gmail.com',
+        to: email,
+        subject: 'Recuperar Senha',
+        text: 'Ola Segue codigo para recuperação de senha',
+        html:
+          `<html lang="pt">
+        <head>
+            <meta charset="UTF-8">
+        </head>
+        <body>
+            <h3>Olá, ` +
+          email +
+          `!</h3>
+            <p>Você solicitou a alteração da senha de sua conta na plataforma <strong>Adota Cão UVV</strong>.
+            <br><br>Segue código de segurança para redefinição da senha:</p>
+            <h3>Código: ` +
+          randomPassword +
+          `</h3>
+            <br>
+            <a href="https://adotacao.com/">www.adotacao.com.br</a>
+        </body>
+        </html>`,
+      };
+
+      sendMail(mailOptions);
 
       return this.toUserObject(user);
     } catch (e) {
       this.logger.error(e);
-      throw e;
+      throw sendingEmailError;
     }
   }
-  /*
-  async requestPasswordReset(email: string): Promise<User> {
-    const user = await UserModel.findOne({ email });
-    if (!user) throw new Error('Email does not exist');
 
-    const token = await Token.findOne({ userId: user._id });
-    if (token) await token.deleteOne();
-
-    const resetToken = crypto.randomBytes(32).toString('hex');
-    const hash = await bcrypt.hash(resetToken, Number(bcryptSalt));
-
-    // await new Token({
-    //   userId: user._id,
-    //   token: hash,
-    //   createdAt: Date.now(),
-    // }).save();
-
-    const link = `${clientURL}/passwordReset?token=${resetToken}&id=${user._id}`;
-
-    sendEmail(
-      user.email,
-      'Password Reset Request',
-      {
-        name: user.name,
-        link: link,
-      },
-      './template/requestResetPassword.handlebars'
-    );
-    return link;
+  async forgotPasswordFinish(idUsuario: string, senha: string): Promise<void> {
+    try {
+      bcrypt.hash(senha, 10, async (err, bcrypt) => {
+        return await UserModel.findByIdAndUpdate(idUsuario, {
+          $set: {
+            password: bcrypt,
+          },
+        });
+      });
+    } catch (error) {
+      this.logger.error(error);
+      throw error;
+    }
   }
 
-  async resetPassword(userId: string, token: string, password: string): Promise<User> {
-    const passwordResetToken = await Token.findOne({ userId });
+  async recuperarTodasOngs(): Promise<User[]> {
+    try {
+      const ongs = await UserModel.find({ adopter: false });
 
-    if (!passwordResetToken) {
-      throw new Error('Invalid or expired password reset token');
+      const ongsObject: User[] = [];
+
+      ongs.forEach((ong) => {
+        ongsObject.push(this.toUserObject(ong));
+      });
+
+      return ongsObject;
+    } catch (error) {
+      this.logger.error(error);
+      throw error;
     }
-
-    const isValid = await bcrypt.compare(token, passwordResetToken.token);
-
-    if (!isValid) {
-      throw new Error('Invalid or expired password reset token');
-    }
-
-    const hash = await bcrypt.hash(password, Number(bcryptSalt));
-
-    await User.updateOne({ _id: userId }, { $set: { password: hash } }, { new: true });
-
-    const user = await UserModel.findById({ _id: userId });
-
-    sendEmail(
-      user.email,
-      'Password Reset Successfully',
-      {
-        name: user.name,
-      },
-      './template/resetPassword.handlebars'
-    );
-
-    await passwordResetToken.deleteOne();
-
-    return true;
   }
 
-  // module.exports = {
-  //   signup,
-  //   requestPasswordReset,
-  //   resetPassword,
-  // };
-  */
+  async recuperarOngNome(nomeRegex: RegExp): Promise<User[]> {
+    try {
+      const ongs = await UserModel.find({ name: nomeRegex });
+
+      const ongsObject: User[] = [];
+
+      ongs.forEach((ong) => {
+        ongsObject.push(this.toUserObject(ong));
+      });
+
+      return ongsObject;
+    } catch (error) {
+      this.logger.error(error);
+      throw error;
+    }
+  }
+
+  public toTodasOngsObject(user: User, address: Address): TodasOngsResponse {
+    return new TodasOngsResponse({
+      id: user.id,
+      adopter: user.adopter,
+      name: user.name,
+      cpfOrCnpj: user.cpfOrCnpj,
+      picture: user.picture,
+      verified: user.verified,
+      address: address,
+    });
+  }
 
   private toUserObject(user: IUserSchema): User {
     return {
