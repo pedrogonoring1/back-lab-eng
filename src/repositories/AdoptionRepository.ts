@@ -4,7 +4,8 @@ import { Logger } from 'winston';
 import AdoptionModel, { IAdoptionSchema } from '../models/Adoption';
 import Settings from '../types/Settings';
 import { Adoption } from '../types/IAdoption';
-import { adoptionExistsError } from '../errors/errors';
+import { adoptionExistsError, cannotReturnDogs } from '../errors/errors';
+import { Types } from 'mongoose';
 
 @injectable()
 export class AdoptionRepository {
@@ -13,10 +14,12 @@ export class AdoptionRepository {
 
   async create(adoptionInfo: Adoption): Promise<Adoption> {
     try {
-      const adoption = await AdoptionModel.findOne({ id: adoptionInfo.id });
+      const adoption = await AdoptionModel.findOne({ adopter: adoptionInfo.userId, dog: adoptionInfo.dogId });
       if (adoption) throw adoptionExistsError;
 
-      const newAdoption = await AdoptionModel.create(adoptionInfo);
+      const objAdoption = { date: adoptionInfo.date, status: adoptionInfo.status, dog: adoptionInfo.dogId, adopter: adoptionInfo.userId}
+
+      const newAdoption = await AdoptionModel.create(objAdoption);
       // const newAdoption = new AdoptionModel({
       //   adopter: adoptionInfo.adopter,
       //   name: adoptionInfo.name,
@@ -31,6 +34,19 @@ export class AdoptionRepository {
       return this.toUserObject(newAdoption);
     } catch (e) {
       this.logger.error(e);
+      throw e;
+    }
+  }
+
+  async findByUserId(id: string): Promise<any[]> {
+    try{
+      const adoption = await AdoptionModel.find({adopter: id})
+
+      if(!adoption) throw cannotReturnDogs;
+
+      return adoption
+    } catch(e){
+      this.logger.error(e)
       throw e;
     }
   }

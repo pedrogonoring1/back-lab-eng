@@ -10,6 +10,9 @@ adoptionExistsError.name = 'AdoptionExists';
 export const userNotFoundError = new Error('Usuário não foi encontrado');
 userNotFoundError.name = 'UserNotFound';
 
+export const dogNotFoundError = new Error('Cachorro não foi encontrado');
+dogNotFoundError.name = 'dogNotFound';
+
 export const incorrectPasswordError = new Error('Senha incorreta');
 incorrectPasswordError.name = 'IncorrectPassword';
 
@@ -24,3 +27,6 @@ invalidCpfOrCnpjError.name = 'InvalidCpfOrCnpj';
 
 export const invalidEmailError = new Error('Email inválido');
 invalidEmailError.name = 'InvalidEmail';
+
+export const cannotReturnDogs = new Error('Não existem cachorros cadastrados para este abrigo.')
+cannotReturnDogs.name = 'CannotReturnDogs'

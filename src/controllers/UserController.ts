@@ -2,20 +2,20 @@ import { injectable, inject } from 'inversify';
 import express, { Request, Response } from 'express';
 
 import { UserRepository } from '../repositories/UserRepository';
+import { AdoptionRepository } from '../repositories/AdoptionRepository';
 import { UserFactory } from '../services/factories/UserFactory';
 
 import { AddressRepository } from '../repositories/AddressRepository';
 import { AddressFactory } from '../services/factories/AddressFactory';
 import { LoginAuthorizer } from '../services/LoginAuthorizer';
 import { AddressFetcher } from '../services/AddressFetcher';
-import { compare } from 'bcrypt';
-import { incorrectPasswordError } from '../errors/errors';
 
 @injectable()
 export class UserController {
   @inject(UserRepository) userRepository: UserRepository;
   @inject(UserFactory) userFactory: UserFactory;
   @inject(AddressRepository) addressRepository: AddressRepository;
+  @inject(AdoptionRepository) adoptionRepository: AdoptionRepository;
   @inject(AddressFactory) addressFactory: AddressFactory;
   @inject(LoginAuthorizer) loginAuthorizer: LoginAuthorizer;
   @inject(AddressFetcher) addressFetcher: AddressFetcher;
@@ -27,9 +27,7 @@ export class UserController {
       .post('/create', this.create)
       .post('/login', this.login)
       .put('/reset-password', this.forgotPassword)
-      .put('/reset-password/finish', this.forgotPasswordFinish)
-      .get('/recuperar-todas-ongs', this.recuperarTodasOngs)
-      .get('/recuperar-todas-ongs-nome/:nome', this.recuperarOngPorNome);
+      .get('/cachorro', this.listaDogs);
   }
 
   create = async (request: Request, response: Response): Promise<void> => {
@@ -88,46 +86,22 @@ export class UserController {
     }
   };
 
-  forgotPasswordFinish = async (request: Request, response: Response): Promise<void> => {
-    try {
-      const { email, codigo, senha } = request.body;
+  listaDogs = async (request: Request, response: Response): Promise<void> => {
+    try{
+      const userId = request.body.id;
 
-      const user = await this.userRepository.findByEmail(email.email);
+      console.log(userId)
+      const ong = await this.userRepository.findById(userId);
+      const adoption = await this.adoptionRepository.findByUserId(userId)
 
-      const isPasswordCorrect = await compare(codigo, user.password);
+      console.log(adoption)
 
-      if (!isPasswordCorrect) throw incorrectPasswordError;
+      response.status(201).send({ data: adoption });
 
-      await this.userRepository.forgotPasswordFinish(user.id, senha);
-
-      response.status(200).send({ data: { ...user, password: undefined } });
-    } catch (e) {
-      this.errorHandler(e, response);
+    } catch(e){
+      this.errorHandler(e, response)
     }
-  };
-
-  recuperarTodasOngs = async (request: Request, response: Response): Promise<void> => {
-    try {
-      const user = await this.userRepository.recuperarTodasOngs();
-
-      response.status(200).send({ data: { ...user, password: undefined } });
-    } catch (e) {
-      this.errorHandler(e, response);
-    }
-  };
-
-  recuperarOngPorNome = async (request: Request, response: Response): Promise<void> => {
-    try {
-      const ongAlias = request.params['nome'].replace(/(^\w{1})|(\s+\w{1})/g, (letra) => letra.toUpperCase());
-      const regex = new RegExp(ongAlias, 'g');
-
-      const user = await this.userRepository.recuperarOngNome(regex);
-
-      response.status(200).send({ data: { ...user, password: undefined } });
-    } catch (e) {
-      this.errorHandler(e, response);
-    }
-  };
+  }
 
   private errorHandler(e: any, response: Response): Response {
     const BAD_REQUEST_ERRORS = [
@@ -145,3 +119,4 @@ export class UserController {
     return response.status(500).send({ error: { detail: 'Internal Server Error' } });
   }
 }
+

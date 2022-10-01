@@ -5,13 +5,14 @@ import { inject, injectable } from 'inversify';
 import Settings from '../types/Settings';
 import compression from 'compression';
 import { Logger } from 'winston';
-import helmet from 'helmet';
+import helmet from "helmet";
 import cors from 'cors';
 import http from 'http';
 
 import { UserController } from '../controllers/UserController';
 import { AddressController } from '../controllers/AddressController';
 import { DogController } from '../controllers/DogController';
+import { AdoptionController } from '../controllers/AdoptionController';
 
 @injectable()
 class Server {
@@ -25,7 +26,8 @@ class Server {
     @inject('Logger') logger: Logger,
     @inject(UserController) userController: UserController,
     @inject(AddressController) addressController: AddressController,
-    @inject(DogController) dogController: DogController
+    @inject(DogController) dogController: DogController,
+    @inject(AdoptionController) adoptionController: AdoptionController
   ) {
     this.port = settings.port;
     this.logger = logger;
@@ -39,6 +41,7 @@ class Server {
       .use('/user', userController.router)
       .use('/address', addressController.router)
       .use('/dog', dogController.router)
+      .use('/adoption', adoptionController.router)
       .use(this.authErrorHandler)
       .use(this.generalErrorHandler);
 
