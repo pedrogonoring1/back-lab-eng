@@ -30,6 +30,51 @@ export class UserRepository {
     }
   }
 
+  async find(userId: string): Promise<User> {
+    try {
+      const user = await UserModel.findById(userId);
+      if (!user) throw userNotFoundError;
+      return this.toUserObject(user);
+    } catch (e) {
+      this.logger.error(e);
+      throw e;
+    }
+  }
+
+  async list(): Promise<User[]> {
+    try {
+      const users = await UserModel.find({});
+      if (!users) throw userNotFoundError;
+      users.forEach((it) => this.toUserObject(it));
+      return users;
+    } catch (e) {
+      this.logger.error(e);
+      throw e;
+    }
+  }
+
+  async update(userId: string, userInfo: User): Promise<User> {
+    try {
+      const user = await UserModel.findByIdAndUpdate(userId, userInfo);
+      if (!user) throw userNotFoundError;
+      return this.toUserObject(user);
+    } catch (e) {
+      this.logger.error(e);
+      throw e;
+    }
+  }
+
+  async delete(userId: string): Promise<User> {
+    try {
+      const user = await UserModel.findByIdAndDelete(userId);
+      if (!user) throw userNotFoundError;
+      return this.toUserObject(user);
+    } catch (e) {
+      this.logger.error(e);
+      throw e;
+    }
+  }
+
   async findByEmail(email: string): Promise<User> {
     try {
       const user = await UserModel.findOne({ email: email }).select('+password');

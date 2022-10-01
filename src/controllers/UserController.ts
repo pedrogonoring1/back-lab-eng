@@ -25,6 +25,10 @@ export class UserController {
   constructor() {
     this.router = express()
       .post('/create', this.create)
+      .get('/list', this.list)
+      .get('/find/:id', this.find)
+      .put('/update/:id', this.update)
+      .delete('/delete/:id', this.delete)
       .post('/login', this.login)
       .put('/reset-password', this.forgotPassword)
       .put('/reset-password/finish', this.forgotPasswordFinish)
@@ -57,6 +61,42 @@ export class UserController {
       const createdUser = await this.userRepository.create(user);
 
       response.status(201).send({ data: { ...createdUser, password: undefined } });
+    } catch (e) {
+      this.errorHandler(e, response);
+    }
+  };
+
+  find = async (request: Request, response: Response): Promise<void> => {
+    try {
+      const readedUser = await this.userRepository.find(request.params.id);
+      response.status(201).send({ data: readedUser });
+    } catch (e) {
+      this.errorHandler(e, response);
+    }
+  };
+
+  list = async (response: Response): Promise<void> => {
+    try {
+      const listedUsers = await this.userRepository.list();
+      response.status(201).send({ data: listedUsers });
+    } catch (e) {
+      this.errorHandler(e, response);
+    }
+  };
+
+  update = async (request: Request, response: Response): Promise<void> => {
+    try {
+      const updatedUser = await this.userRepository.update(request.params.id, request.body);
+      response.status(201).send({ data: updatedUser });
+    } catch (e) {
+      this.errorHandler(e, response);
+    }
+  };
+
+  delete = async (request: Request, response: Response): Promise<void> => {
+    try {
+      const deletedUser = await this.userRepository.delete(request.params.id);
+      response.status(201).send({ data: deletedUser });
     } catch (e) {
       this.errorHandler(e, response);
     }

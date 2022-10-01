@@ -15,7 +15,12 @@ export class AdoptionController {
   router: express.Application;
 
   constructor() {
-    this.router = express().post('/create', this.create);
+    this.router = express()
+      .post('/adoption/create', this.create)
+      .get('/adoption/list', this.list)
+      .get('/adoption/find/:id', this.find)
+      .put('/adoption/update/:id', this.update)
+      .delete('/adoption/delete/:id', this.delete);
   }
 
   create = async (request: Request, response: Response): Promise<void> => {
@@ -24,6 +29,42 @@ export class AdoptionController {
       const adoption = await this.adoptionFactory.call(date, status, dogId, userId);
       const createdAdoption = await this.adoptionRepository.create(adoption);
       response.status(201).send({ data: createdAdoption });
+    } catch (e) {
+      this.errorHandler(e, response);
+    }
+  };
+
+  find = async (request: Request, response: Response): Promise<void> => {
+    try {
+      const readedAdoption = await this.adoptionRepository.find(request.params.id);
+      response.status(201).send({ data: readedAdoption });
+    } catch (e) {
+      this.errorHandler(e, response);
+    }
+  };
+
+  list = async (response: Response): Promise<void> => {
+    try {
+      const listedAdoptions = await this.adoptionRepository.list();
+      response.status(201).send({ data: listedAdoptions });
+    } catch (e) {
+      this.errorHandler(e, response);
+    }
+  };
+
+  update = async (request: Request, response: Response): Promise<void> => {
+    try {
+      const updatedAdoption = await this.adoptionRepository.update(request.params.id, request.body);
+      response.status(201).send({ data: updatedAdoption });
+    } catch (e) {
+      this.errorHandler(e, response);
+    }
+  };
+
+  delete = async (request: Request, response: Response): Promise<void> => {
+    try {
+      const deletedAdoption = await this.adoptionRepository.delete(request.params.id);
+      response.status(201).send({ data: deletedAdoption });
     } catch (e) {
       this.errorHandler(e, response);
     }

@@ -15,7 +15,12 @@ export class DogController {
   router: express.Application;
 
   constructor() {
-    this.router = express().post('/create', this.create).get('/find/:id', this.find);
+    this.router = express()
+      .post('/dog/create', this.create)
+      .get('/dog/list', this.list)
+      .get('/dog/find/:id', this.find)
+      .put('/dog/update/:id', this.update)
+      .delete('/dog/delete/:id', this.delete);
   }
 
   create = async (request: Request, response: Response): Promise<void> => {
