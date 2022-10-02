@@ -15,7 +15,7 @@ export class AdoptionController {
   router: express.Application;
 
   constructor() {
-    this.router = express().post('/', this.create);
+    this.router = express().post('/', this.create).get('/user:id', this.fetchByUser);
   }
 
   create = async (request: Request, response: Response): Promise<void> => {
@@ -26,6 +26,16 @@ export class AdoptionController {
       const createdAdoption = await this.adoptionRepository.create(adoption);
 
       response.status(201).send({ data: createdAdoption });
+    } catch (e) {
+      this.errorHandler(e, response);
+    }
+  };
+
+  fetchByUser = async (request: Request, response: Response): Promise<void> => {
+    try {
+      const idUser = request.params.id;
+      const adoptions = await this.adoptionRepository.fetchByUser(idUser);
+      response.status(201).send({ data: adoptions });
     } catch (e) {
       this.errorHandler(e, response);
     }

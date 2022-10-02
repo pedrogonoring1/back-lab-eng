@@ -35,6 +35,15 @@ export class AdoptionRepository {
     }
   }
 
+  async fetchByUser(userId: number): Promise<Adoption> {
+    try {
+      const adoptions = await AdoptionModel.find({ adopter: userId });
+      return adoptions;
+    } catch (e) {
+      this.logger.error(e);
+    }
+  }
+
   private toUserObject(adoption: IAdoptionSchema): Adoption {
     return {
       id: adoption.id,
