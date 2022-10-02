@@ -15,7 +15,7 @@ export class AdoptionController {
   router: express.Application;
 
   constructor() {
-    this.router = express().post('/', this.create).get('/user:id', this.fetchByUser);
+    this.router = express().post('/', this.create);
   }
 
   create = async (request: Request, response: Response): Promise<void> => {
