@@ -35,9 +35,10 @@ export class AdoptionRepository {
     }
   }
 
-  async fetchByUser(userId: string){
+  async fetchByUser(userId: string): Promise<Adoption> {
     try {
-      const adoptions = await AdoptionModel.find({ userId: userId }).exec();
+      const adoptions = await AdoptionModel.find({ userId: userId });
+      if (!adoptions) throw adoptionExistsError;
       return this.toUserObject(adoptions);
     } catch (e) {
       this.logger.error(e);
@@ -46,6 +47,7 @@ export class AdoptionRepository {
 
   private toUserObject(adoption: IAdoptionSchema): Adoption {
     return {
+      id: adoption.id,
       date: adoption.date,
       status: adoption.status,
       dogId: adoption.dogId,
