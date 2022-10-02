@@ -37,7 +37,7 @@ export class AdoptionRepository {
 
   async fetchByUser(userId: string): Promise<Adoption> {
     try {
-      const adoptions = await AdoptionModel.find({ userId: userId });
+      const adoptions = await AdoptionModel.find({ adopter: userId });
       if (!adoptions) throw adoptionExistsError;
       return this.toUserObject(adoptions);
     } catch (e) {
