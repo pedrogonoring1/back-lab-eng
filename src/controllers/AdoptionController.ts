@@ -31,7 +31,6 @@ export class AdoptionController {
     }
   };
 
-
   // login = async (request: Request, response: Response): Promise<void> => {
   //   try {
   //     const { email, password } = request.body.data;
