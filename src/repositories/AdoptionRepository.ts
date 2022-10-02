@@ -37,7 +37,7 @@ export class AdoptionRepository {
 
   async fetchByUser(userId: string): Promise<Adoption> {
     try {
-      const adoptions = await AdoptionModel.find({ adopter: userId });
+      const adoptions = await AdoptionModel.find({ adopter: userId }).exec();
       return adoptions;
     } catch (e) {
       this.logger.error(e);
