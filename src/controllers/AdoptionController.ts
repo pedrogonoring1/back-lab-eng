@@ -31,15 +31,6 @@ export class AdoptionController {
     }
   };
 
-  fetchByUser = async (request: Request, response: Response): Promise<void> => {
-    try {
-      const idUser = request.params.id;
-      const adoptions = await this.adoptionRepository.fetchByUser(idUser);
-      response.status(201).send({ data: adoptions });
-    } catch (e) {
-      this.errorHandler(e, response);
-    }
-  };
 
   // login = async (request: Request, response: Response): Promise<void> => {
   //   try {
