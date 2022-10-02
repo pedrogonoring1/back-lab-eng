@@ -29,7 +29,8 @@ export class UserController {
       .put('/reset-password', this.forgotPassword)
       .put('/reset-password/finish', this.forgotPasswordFinish)
       .get('/recuperar-todas-ongs', this.recuperarTodasOngs)
-      .get('/recuperar-todas-ongs-nome/:nome', this.recuperarOngPorNome);
+      .get('/recuperar-todas-ongs-nome/:nome', this.recuperarOngPorNome)
+      .get('/:cpfOrCnpj', this.findUserByCpfOrCnpj);
   }
 
   create = async (request: Request, response: Response): Promise<void> => {
@@ -128,6 +129,19 @@ export class UserController {
       this.errorHandler(e, response);
     }
   };
+
+  findUserByCpfOrCnpj = async (request: Request, response: Response): Promise<void> => {
+    try {
+      const ongOrUser = request.params['cpfOrCnpj'];
+
+      const user = await this.userRepository.findByCpfOrCnpj(ongOrUser)
+
+      response.status(200).send({ data: { ...user, password: undefined } });
+    }
+    catch (e) {
+      this.errorHandler(e, response);
+    }
+  }
 
   private errorHandler(e: any, response: Response): Response {
     const BAD_REQUEST_ERRORS = [
