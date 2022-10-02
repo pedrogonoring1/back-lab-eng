@@ -46,7 +46,6 @@ export class AdoptionRepository {
 
   private toUserObject(adoption: IAdoptionSchema): Adoption {
     return {
-      id: adoption.id,
       date: adoption.date,
       status: adoption.status,
       dogId: adoption.dogId,
