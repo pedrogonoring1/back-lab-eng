@@ -16,7 +16,10 @@ export class DogController {
   router: express.Application;
 
   constructor(@inject(AuthenticationMiddleware) authMiddleware: AuthenticationMiddleware) {
-    this.router = express().use(authMiddleware.apply).post('/create', this.create);
+    this.router = express()//.use(authMiddleware.apply)
+    .post('/create', this.create)
+    .get('/recuperar/:idDog', this.recuperarPorId)
+    .put('/editar', this.editarPorId);
   }
 
   create = async (request: Request, response: Response): Promise<void> => {
@@ -25,6 +28,31 @@ export class DogController {
 
       const dog = await this.dogFactory.call(name, age, gender, size, history, picture, adopted);
       const createdDog = await this.dogRepository.create(dog);
+
+      response.status(201).send({ data: createdDog });
+    } catch (e) {
+      this.errorHandler(e, response);
+    }
+  };
+
+  recuperarPorId = async (request: Request, response: Response): Promise<void> => {
+    try {
+      const { idDog } = request.params;
+
+      const createdDog = await this.dogRepository.recuperarPorId(idDog);
+
+      response.status(201).send({ data: createdDog });
+    } catch (e) {
+      this.errorHandler(e, response);
+    }
+  };
+
+  editarPorId = async (request: Request, response: Response): Promise<void> => {
+    try {
+
+      const cachorroEdit = request.body.cachorroConsulta;
+
+       const createdDog = await this.dogRepository.updatePorId(cachorroEdit, cachorroEdit._id);
 
       response.status(201).send({ data: createdDog });
     } catch (e) {

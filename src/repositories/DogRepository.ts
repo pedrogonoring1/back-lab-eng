@@ -31,6 +31,29 @@ export class DogRepository {
     }
   }
 
+  async recuperarPorId(idDog: string): Promise<object> {
+    try {
+      const newDog = await DogModel.find({_id: Object(idDog)})
+      console.log(newDog)
+      return newDog;
+    } catch (e) {
+      this.logger.error(e);
+      throw e;
+    }
+  }
+
+  async updatePorId(dogInfo: Dog, id: string): Promise<object> {
+    try {
+            
+     const dogAtualizado = await DogModel.findByIdAndUpdate({_id: Object(id)}, dogInfo);
+
+      return dogAtualizado;
+    } catch (e) {
+      this.logger.error(e);
+      throw e;
+    }
+  }
+
   private toDogObject(dog: IDogSchema): Dog {
     return {
       id: dog.id,
