@@ -16,7 +16,7 @@ export class DogController {
   router: express.Application;
 
   constructor(@inject(AuthenticationMiddleware) authMiddleware: AuthenticationMiddleware) {
-    this.router = express() //.use(authMiddleware.apply)
+    this.router = express().use(authMiddleware.apply)
       .post('/create', this.create)
       .get('/recuperar/:idDog', this.recuperarPorId)
       .put('/editar', this.editarPorId);
