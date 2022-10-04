@@ -16,10 +16,10 @@ export class DogController {
   router: express.Application;
 
   constructor(@inject(AuthenticationMiddleware) authMiddleware: AuthenticationMiddleware) {
-    this.router = express()//.use(authMiddleware.apply)
-    .post('/create', this.create)
-    .get('/recuperar/:idDog', this.recuperarPorId)
-    .put('/editar', this.editarPorId);
+    this.router = express() //.use(authMiddleware.apply)
+      .post('/create', this.create)
+      .get('/recuperar/:idDog', this.recuperarPorId)
+      .put('/editar', this.editarPorId);
   }
 
   create = async (request: Request, response: Response): Promise<void> => {
@@ -49,10 +49,9 @@ export class DogController {
 
   editarPorId = async (request: Request, response: Response): Promise<void> => {
     try {
-
       const cachorroEdit = request.body.cachorroConsulta;
 
-       const createdDog = await this.dogRepository.updatePorId(cachorroEdit, cachorroEdit._id);
+      const createdDog = await this.dogRepository.updatePorId(cachorroEdit, cachorroEdit._id);
 
       response.status(201).send({ data: createdDog });
     } catch (e) {

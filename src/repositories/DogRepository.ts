@@ -33,8 +33,8 @@ export class DogRepository {
 
   async recuperarPorId(idDog: string): Promise<object> {
     try {
-      const newDog = await DogModel.find({_id: Object(idDog)})
-      console.log(newDog)
+      const newDog = await DogModel.find({ _id: Object(idDog) });
+      console.log(newDog);
       return newDog;
     } catch (e) {
       this.logger.error(e);
@@ -44,8 +44,7 @@ export class DogRepository {
 
   async updatePorId(dogInfo: Dog, id: string): Promise<object> {
     try {
-            
-     const dogAtualizado = await DogModel.findByIdAndUpdate({_id: Object(id)}, dogInfo);
+      const dogAtualizado = await DogModel.findByIdAndUpdate({ _id: Object(id) }, dogInfo);
 
       return dogAtualizado;
     } catch (e) {
