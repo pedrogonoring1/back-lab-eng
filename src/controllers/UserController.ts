@@ -32,6 +32,7 @@ export class UserController {
       .get('/listAdopters', this.listAdopters)
       .get('/listAdopters/:name', this.listAdoptersByName)
       .get('/find/:id', this.find)
+      .get('/find/:cpfOrCnpj', this.findByCpfOrCnpj)
       .put('/update/:id', this.update)
       .put('/reset-password', this.forgotPassword)
       .put('/reset-password/finish', this.forgotPasswordFinish)
@@ -71,6 +72,16 @@ export class UserController {
     try {
       const readedUser = await this.userRepository.find(request.params.id);
       response.status(200).send({ data: readedUser, password: undefined });
+    } catch (e) {
+      this.errorHandler(e, response);
+    }
+  };
+
+  findByCpfOrCnpj = async (request: Request, response: Response): Promise<void> => {
+    try {
+      const ongOrUser = request.params['cpfOrCnpj'];
+      const user = await this.userRepository.findByCpfOrCnpj(ongOrUser);
+      response.status(200).send({ data: { ...user, password: undefined } });
     } catch (e) {
       this.errorHandler(e, response);
     }

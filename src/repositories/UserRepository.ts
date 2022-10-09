@@ -37,6 +37,17 @@ export class UserRepository {
     }
   }
 
+  async findByCpfOrCnpj(cpfOrCnpj: string): Promise<User> {
+    try {
+      const user = await UserModel.findOne({ cpfOrCnpj: cpfOrCnpj }).select('+password');
+      if (!user) throw userNotFoundError;
+      return this.toUserObject(user);
+    } catch (e) {
+      this.logger.error(e);
+      throw e;
+    }
+  }
+
   async list(): Promise<List<User>> {
     try {
       const users = await UserModel.find({});
