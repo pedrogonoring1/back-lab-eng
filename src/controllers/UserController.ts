@@ -17,23 +17,25 @@ export class UserController {
   @inject(UserFactory) userFactory: UserFactory;
   @inject(AddressRepository) addressRepository: AddressRepository;
   @inject(AddressFactory) addressFactory: AddressFactory;
-  @inject(LoginAuthorizer) loginAuthorizer: LoginAuthorizer;
   @inject(AddressFetcher) addressFetcher: AddressFetcher;
+  @inject(LoginAuthorizer) loginAuthorizer: LoginAuthorizer;
 
   router: express.Application;
 
   constructor() {
     this.router = express()
       .post('/create', this.create)
+      .post('/login', this.login)
       .get('/list', this.list)
+      .get('/listShelters', this.listShelters)
+      .get('/listShelters/:name', this.listSheltersByName)
+      .get('/listAdopters', this.listAdopters)
+      .get('/listAdopters/:name', this.listAdoptersByName)
       .get('/find/:id', this.find)
       .put('/update/:id', this.update)
-      .delete('/delete/:id', this.delete)
-      .post('/login', this.login)
       .put('/reset-password', this.forgotPassword)
       .put('/reset-password/finish', this.forgotPasswordFinish)
-      .get('/recuperar-todas-ongs', this.recuperarTodasOngs)
-      .get('/recuperar-todas-ongs-nome/:nome', this.recuperarOngPorNome);
+      .delete('/delete/:id', this.delete);
   }
 
   create = async (request: Request, response: Response): Promise<void> => {
@@ -57,7 +59,6 @@ export class UserController {
         verified,
         createdAddress.id
       );
-
       const createdUser = await this.userRepository.create(user);
 
       response.status(201).send({ data: { ...createdUser, password: undefined } });
@@ -69,16 +70,56 @@ export class UserController {
   find = async (request: Request, response: Response): Promise<void> => {
     try {
       const readedUser = await this.userRepository.find(request.params.id);
-      response.status(201).send({ data: readedUser });
+      response.status(200).send({ data: readedUser, password: undefined });
     } catch (e) {
       this.errorHandler(e, response);
     }
   };
 
-  list = async (response: Response): Promise<void> => {
+  list = async (_: Request, response: Response): Promise<void> => {
     try {
       const listedUsers = await this.userRepository.list();
-      response.status(201).send({ data: listedUsers });
+      response.status(200).send({ data: listedUsers, password: undefined });
+    } catch (e) {
+      this.errorHandler(e, response);
+    }
+  };
+
+  listShelters = async (_: Request, response: Response): Promise<void> => {
+    try {
+      const listedUsers = await this.userRepository.listShelters();
+      response.status(200).send({ data: listedUsers, password: undefined });
+    } catch (e) {
+      this.errorHandler(e, response);
+    }
+  };
+
+  listSheltersByName = async (request: Request, response: Response): Promise<void> => {
+    try {
+      const shelterAlias = request.params['nome'].replace(/(^\w{1})|(\s+\w{1})/g, (letra) => letra.toUpperCase());
+      const regex = new RegExp(shelterAlias, 'g');
+      const users = await this.userRepository.listSheltersByName(regex);
+      response.status(200).send({ data: { ...users, password: undefined } });
+    } catch (e) {
+      this.errorHandler(e, response);
+    }
+  };
+
+  listAdopters = async (_: Request, response: Response): Promise<void> => {
+    try {
+      const listedUsers = await this.userRepository.listAdopters();
+      response.status(200).send({ data: listedUsers, password: undefined });
+    } catch (e) {
+      this.errorHandler(e, response);
+    }
+  };
+
+  listAdoptersByName = async (request: Request, response: Response): Promise<void> => {
+    try {
+      const adopterAlias = request.params['nome'].replace(/(^\w{1})|(\s+\w{1})/g, (letra) => letra.toUpperCase());
+      const regex = new RegExp(adopterAlias, 'g');
+      const users = await this.userRepository.listAdoptersByName(regex);
+      response.status(200).send({ data: { ...users, password: undefined } });
     } catch (e) {
       this.errorHandler(e, response);
     }
@@ -139,29 +180,6 @@ export class UserController {
       if (!isPasswordCorrect) throw incorrectPasswordError;
 
       await this.userRepository.forgotPasswordFinish(user.id, senha);
-
-      response.status(200).send({ data: { ...user, password: undefined } });
-    } catch (e) {
-      this.errorHandler(e, response);
-    }
-  };
-
-  recuperarTodasOngs = async (request: Request, response: Response): Promise<void> => {
-    try {
-      const user = await this.userRepository.recuperarTodasOngs();
-
-      response.status(200).send({ data: { ...user, password: undefined } });
-    } catch (e) {
-      this.errorHandler(e, response);
-    }
-  };
-
-  recuperarOngPorNome = async (request: Request, response: Response): Promise<void> => {
-    try {
-      const ongAlias = request.params['nome'].replace(/(^\w{1})|(\s+\w{1})/g, (letra) => letra.toUpperCase());
-      const regex = new RegExp(ongAlias, 'g');
-
-      const user = await this.userRepository.recuperarOngNome(regex);
 
       response.status(200).send({ data: { ...user, password: undefined } });
     } catch (e) {

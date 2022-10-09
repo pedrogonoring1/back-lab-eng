@@ -3,11 +3,14 @@ import express, { Request, Response } from 'express';
 
 import { DogRepository } from '../repositories/DogRepository';
 import { DogFactory } from '../services/factories/DogFactory';
+import { UserRepository } from '../repositories/UserRepository';
 
 @injectable()
 export class DogController {
   @inject(DogRepository)
   private dogRepository: DogRepository;
+  @inject(UserRepository)
+  private userRepository: UserRepository;
 
   @inject(DogFactory)
   private dogFactory: DogFactory;
@@ -16,11 +19,12 @@ export class DogController {
 
   constructor() {
     this.router = express()
-      .post('/dog/create', this.create)
-      .get('/dog/list', this.list)
-      .get('/dog/find/:id', this.find)
-      .put('/dog/update/:id', this.update)
-      .delete('/dog/delete/:id', this.delete);
+      .post('/create', this.create)
+      .get('/list', this.list)
+      .get('/listByShelter/:id', this.listByShelter)
+      .get('/find/:id', this.find)
+      .put('/update/:id', this.update)
+      .delete('/delete/:id', this.delete);
   }
 
   create = async (request: Request, response: Response): Promise<void> => {
@@ -38,15 +42,29 @@ export class DogController {
   find = async (request: Request, response: Response): Promise<void> => {
     try {
       const readedDog = await this.dogRepository.find(request.params.id);
-      response.status(201).send({ data: readedDog });
+      response.status(200).send({ data: readedDog });
     } catch (e) {
       this.errorHandler(e, response);
     }
   };
 
-  list = async (response: Response): Promise<void> => {
+  list = async (_: Request, response: Response): Promise<void> => {
     try {
       const listedDogs = await this.dogRepository.list();
+      response.status(200).send({ data: listedDogs });
+    } catch (e) {
+      this.errorHandler(e, response);
+    }
+  };
+
+  listByShelter = async (request: Request, response: Response): Promise<void> => {
+    try {
+      const readedShelter = await this.userRepository.find(request.params.id);
+      console.log('readedShelter', readedShelter);
+      if (readedShelter.adopter) response.status(409).send({ error: 'Usuário não é um abrigo.' });
+
+      const listedDogs = await this.dogRepository.listByShelter(readedShelter.id);
+      console.log('listedDogs', listedDogs);
       response.status(201).send({ data: listedDogs });
     } catch (e) {
       this.errorHandler(e, response);

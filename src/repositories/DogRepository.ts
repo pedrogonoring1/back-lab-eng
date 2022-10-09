@@ -5,6 +5,7 @@ import DogModel, { IDogSchema } from '../models/Dog';
 import Settings from '../types/Settings';
 import { Dog } from '../types/IDog';
 import { dogNotFoundError } from '../errors/errors';
+import { List } from 'lodash';
 
 @injectable()
 export class DogRepository {
@@ -33,9 +34,22 @@ export class DogRepository {
     }
   }
 
-  async list(): Promise<Dog[]> {
+  async list(): Promise<List<Dog>> {
     try {
       const dogs = await DogModel.find({});
+      if (!dogs) throw dogNotFoundError;
+      dogs.forEach((it) => this.toDogObject(it));
+      return dogs;
+    } catch (e) {
+      this.logger.error(e);
+      throw e;
+    }
+  }
+
+  async listByShelter(shelterId: string): Promise<List<Dog>> {
+    try {
+      const dogs = await DogModel.find({ shelter: shelterId });
+      console.log('dogs', dogs);
       if (!dogs) throw dogNotFoundError;
       dogs.forEach((it) => this.toDogObject(it));
       return dogs;

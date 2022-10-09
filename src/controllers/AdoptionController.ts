@@ -16,11 +16,11 @@ export class AdoptionController {
 
   constructor() {
     this.router = express()
-      .post('/adoption/create', this.create)
-      .get('/adoption/list', this.list)
-      .get('/adoption/find/:id', this.find)
-      .put('/adoption/update/:id', this.update)
-      .delete('/adoption/delete/:id', this.delete);
+      .post('/create', this.create)
+      .get('/list', this.list)
+      .get('/find/:id', this.find)
+      .put('/update/:id', this.update)
+      .delete('/delete/:id', this.delete);
   }
 
   create = async (request: Request, response: Response): Promise<void> => {
@@ -43,7 +43,7 @@ export class AdoptionController {
     }
   };
 
-  list = async (response: Response): Promise<void> => {
+  list = async (_: Request, response: Response): Promise<void> => {
     try {
       const listedAdoptions = await this.adoptionRepository.list();
       response.status(201).send({ data: listedAdoptions });
