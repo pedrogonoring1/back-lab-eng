@@ -11,6 +11,7 @@
     "format": "npm run lint:fix && npm run prettier:format",
     "start:dev": "tsnd --respawn src/server.ts",
     "build": "npm run clean && npm run compile",
+    "dev": "npm run clean && npm run compile && tsnd --respawn src/server.ts",
     "start": "node dist/server.js",
     "test": "cross-env NODE_ENV=testing mocha --require ts-node/register --ui bdd 'test/**/*.test.ts'",
     "test:watch": "cross-env NODE_ENV=testing mocha --watch --require ts-node/register --ui bdd 'test/**/*.test.ts'"

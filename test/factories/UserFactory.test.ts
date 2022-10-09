@@ -5,7 +5,6 @@
 
 describe('UserFactory', () => {
   // const factory = getTestContainer().get(UserFactory);
-
   // describe('#call', () => {
   //   describe('with valid user', () => {
   //     it('returns an user object', async () => {
@@ -22,7 +21,6 @@ describe('UserFactory', () => {
   //         true,
   //         'abc123'
   //       );
-
   //       expect(user).to.deep.equal({
   //         adopter: true,
   //         name: 'abc123',

@@ -5,6 +5,8 @@ import UserModel, { IUserSchema } from '../models/User';
 import Settings from '../types/Settings';
 import { User } from '../types/IUser';
 import { sendingEmailError, userExistsError, userNotFoundError } from '../errors/errors';
+import bcrypt from 'bcrypt';
+import { List } from 'lodash';
 
 @injectable()
 export class UserRepository {
@@ -14,13 +16,114 @@ export class UserRepository {
   async create(userInfo: User) {
     try {
       const user = await UserModel.findOne({ $or: [{ cpfOrCnpj: userInfo.cpfOrCnpj }, { email: userInfo.email }] });
-
       if (user) throw userExistsError;
-
       const newUser = await UserModel.create(userInfo);
       await newUser.save();
-
       return this.toUserObject(newUser);
+    } catch (e) {
+      this.logger.error(e);
+      throw e;
+    }
+  }
+
+  async find(userId: string): Promise<User> {
+    try {
+      const user = await UserModel.findById(userId);
+      if (!user) throw userNotFoundError;
+      return this.toUserObject(user);
+    } catch (e) {
+      this.logger.error(e);
+      throw e;
+    }
+  }
+
+  async findByCpfOrCnpj(cpfOrCnpj: string): Promise<User> {
+    try {
+      const user = await UserModel.findOne({ cpfOrCnpj: cpfOrCnpj }).select('+password');
+      if (!user) throw userNotFoundError;
+      return this.toUserObject(user);
+    } catch (e) {
+      this.logger.error(e);
+      throw e;
+    }
+  }
+
+  async list(): Promise<List<User>> {
+    try {
+      const users = await UserModel.find({});
+      if (!users) throw userNotFoundError;
+      users.forEach((it) => this.toUserObject(it));
+      return users;
+    } catch (e) {
+      this.logger.error(e);
+      throw e;
+    }
+  }
+
+  async listShelters(): Promise<List<User>> {
+    try {
+      const users = await UserModel.find({ adopter: false });
+      if (!users) throw userNotFoundError;
+      users.forEach((it) => this.toUserObject(it));
+      return users;
+    } catch (e) {
+      this.logger.error(e);
+      throw e;
+    }
+  }
+
+  async listSheltersByName(nomeRegex: RegExp): Promise<List<User>> {
+    try {
+      const users = await UserModel.find({ name: nomeRegex, adopter: false });
+      if (!users) throw userNotFoundError;
+      users.forEach((it) => this.toUserObject(it));
+      return users;
+    } catch (error) {
+      this.logger.error(error);
+      throw error;
+    }
+  }
+
+  async listAdopters(): Promise<List<User>> {
+    try {
+      const users = await UserModel.find({ adopter: true });
+      if (!users) throw userNotFoundError;
+      users.forEach((it) => this.toUserObject(it));
+      return users;
+    } catch (e) {
+      this.logger.error(e);
+      throw e;
+    }
+  }
+
+  async listAdoptersByName(nomeRegex: RegExp): Promise<List<User>> {
+    try {
+      const users = await UserModel.find({ name: nomeRegex, adopter: true });
+      if (!users) throw userNotFoundError;
+      users.forEach((it) => this.toUserObject(it));
+      return users;
+    } catch (error) {
+      this.logger.error(error);
+      throw error;
+    }
+  }
+
+  async update(userId: string, userInfo: User): Promise<User> {
+    try {
+      const user = await UserModel.findByIdAndUpdate(userId, userInfo);
+      if (!user) throw userNotFoundError;
+      return this.toUserObject(user);
+    } catch (e) {
+      this.logger.error(e);
+      throw e;
+    }
+  }
+
+  async delete(userId: string): Promise<User> {
+    try {
+      const user = await UserModel.findByIdAndDelete(userId);
+      if (!user) throw userNotFoundError;
+      return this.toUserObject(user);
     } catch (e) {
       this.logger.error(e);
       throw e;
@@ -48,10 +151,12 @@ export class UserRepository {
 
       const randomPassword = Math.random().toString(36).slice(-8);
 
-      await UserModel.findByIdAndUpdate(user.id, {
-        $set: {
-          password: randomPassword,
-        },
+      bcrypt.hash(randomPassword, 10, async (err, bcrypt) => {
+        await UserModel.findByIdAndUpdate(user.id, {
+          $set: {
+            password: bcrypt,
+          },
+        });
       });
 
       const mailOptions = {
@@ -85,6 +190,21 @@ export class UserRepository {
     } catch (e) {
       this.logger.error(e);
       throw sendingEmailError;
+    }
+  }
+
+  async forgotPasswordFinish(idUsuario: string, senha: string): Promise<void> {
+    try {
+      bcrypt.hash(senha, 10, async (err, bcrypt) => {
+        return await UserModel.findByIdAndUpdate(idUsuario, {
+          $set: {
+            password: bcrypt,
+          },
+        });
+      });
+    } catch (error) {
+      this.logger.error(error);
+      throw error;
     }
   }
 

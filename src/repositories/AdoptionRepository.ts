@@ -4,7 +4,7 @@ import { Logger } from 'winston';
 import AdoptionModel, { IAdoptionSchema } from '../models/Adoption';
 import Settings from '../types/Settings';
 import { Adoption } from '../types/IAdoption';
-import { adoptionExistsError } from '../errors/errors';
+import { adoptionExistsError, adoptionNotFoundError } from '../errors/errors';
 
 @injectable()
 export class AdoptionRepository {
@@ -15,27 +15,61 @@ export class AdoptionRepository {
     try {
       const adoption = await AdoptionModel.findOne({ id: adoptionInfo.id });
       if (adoption) throw adoptionExistsError;
-
       const newAdoption = await AdoptionModel.create(adoptionInfo);
-      // const newAdoption = new AdoptionModel({
-      //   adopter: adoptionInfo.adopter,
-      //   name: adoptionInfo.name,
-      //   cpfOrCnpj: adoptionInfo.cpfOrCnpj,
-      //   address: adoptionInfo.address,
-      //   birthDate: adoptionInfo.birthDate,
-      //   phone: adoptionInfo.phone,
-      //   email: adoptionInfo.email,
-      //   password: adoptionInfo.password,
-      // });
       await newAdoption.save();
-      return this.toUserObject(newAdoption);
+      return this.toAdoptionObject(newAdoption);
     } catch (e) {
       this.logger.error(e);
       throw e;
     }
   }
 
-  private toUserObject(adoption: IAdoptionSchema): Adoption {
+  async find(adoptionId: string): Promise<Adoption> {
+    try {
+      const adoption = await AdoptionModel.findById(adoptionId);
+      if (!adoption) throw adoptionNotFoundError;
+      return this.toAdoptionObject(adoption);
+    } catch (e) {
+      this.logger.error(e);
+      throw e;
+    }
+  }
+
+  async list(): Promise<Adoption[]> {
+    try {
+      const adoptions = await AdoptionModel.find({});
+      if (!adoptions) throw adoptionNotFoundError;
+      adoptions.forEach((it) => this.toAdoptionObject(it));
+      return adoptions;
+    } catch (e) {
+      this.logger.error(e);
+      throw e;
+    }
+  }
+
+  async update(adoptionId: string, adoptionInfo: Adoption): Promise<Adoption> {
+    try {
+      const adoption = await AdoptionModel.findByIdAndUpdate(adoptionId, adoptionInfo);
+      if (!adoption) throw adoptionNotFoundError;
+      return this.toAdoptionObject(adoption);
+    } catch (e) {
+      this.logger.error(e);
+      throw e;
+    }
+  }
+
+  async delete(adoptionId: string): Promise<Adoption> {
+    try {
+      const adoption = await AdoptionModel.findByIdAndDelete(adoptionId);
+      if (!adoption) throw adoptionNotFoundError;
+      return this.toAdoptionObject(adoption);
+    } catch (e) {
+      this.logger.error(e);
+      throw e;
+    }
+  }
+
+  private toAdoptionObject(adoption: IAdoptionSchema): Adoption {
     return {
       id: adoption.id,
       date: adoption.date,
