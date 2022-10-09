@@ -4,7 +4,7 @@ import { Logger } from 'winston';
 import AddressModel, { IAddressSchema } from '../models/Address';
 import Settings from '../types/Settings';
 import { Address } from '../types/IAddress';
-// import { addressExistsError } from '../errors/errors';
+import { addressNotFoundError } from '../errors/errors';
 
 @injectable()
 export class AddressRepository {
@@ -13,13 +13,55 @@ export class AddressRepository {
 
   async create(addressInfo: Address) {
     try {
-      //   const address = await AddressModel.findOne({ cpfOrCnpj: addressInfo.cep });
-      //   if (address) throw addressExistsError;
-
       const newAddress = await AddressModel.create(addressInfo);
       await newAddress.save();
 
       return this.toAddressObject(newAddress);
+    } catch (e) {
+      this.logger.error(e);
+      throw e;
+    }
+  }
+
+  async find(addressId: string): Promise<Address> {
+    try {
+      const address = await AddressModel.findById(addressId);
+      if (!address) throw addressNotFoundError;
+      return this.toAddressObject(address);
+    } catch (e) {
+      this.logger.error(e);
+      throw e;
+    }
+  }
+
+  async list(): Promise<Address[]> {
+    try {
+      const addresss = await AddressModel.find({});
+      if (!addresss) throw addressNotFoundError;
+      addresss.forEach((it) => this.toAddressObject(it));
+      return addresss;
+    } catch (e) {
+      this.logger.error(e);
+      throw e;
+    }
+  }
+
+  async update(addressId: string, addressInfo: Address): Promise<Address> {
+    try {
+      const address = await AddressModel.findByIdAndUpdate(addressId, addressInfo);
+      if (!address) throw addressNotFoundError;
+      return this.toAddressObject(address);
+    } catch (e) {
+      this.logger.error(e);
+      throw e;
+    }
+  }
+
+  async delete(addressId: string): Promise<Address> {
+    try {
+      const address = await AddressModel.findByIdAndDelete(addressId);
+      if (!address) throw addressNotFoundError;
+      return this.toAddressObject(address);
     } catch (e) {
       this.logger.error(e);
       throw e;

@@ -6,8 +6,7 @@ import Settings from '../types/Settings';
 import { User } from '../types/IUser';
 import { sendingEmailError, userExistsError, userNotFoundError } from '../errors/errors';
 import bcrypt from 'bcrypt';
-import { Address } from '../types/IAddress';
-import { TodasOngsResponse } from '../models/responses/todasOngsResponse';
+import { List } from 'lodash';
 
 @injectable()
 export class UserRepository {
@@ -17,13 +16,103 @@ export class UserRepository {
   async create(userInfo: User) {
     try {
       const user = await UserModel.findOne({ $or: [{ cpfOrCnpj: userInfo.cpfOrCnpj }, { email: userInfo.email }] });
-
       if (user) throw userExistsError;
-
       const newUser = await UserModel.create(userInfo);
       await newUser.save();
-
       return this.toUserObject(newUser);
+    } catch (e) {
+      this.logger.error(e);
+      throw e;
+    }
+  }
+
+  async find(userId: string): Promise<User> {
+    try {
+      const user = await UserModel.findById(userId);
+      if (!user) throw userNotFoundError;
+      return this.toUserObject(user);
+    } catch (e) {
+      this.logger.error(e);
+      throw e;
+    }
+  }
+
+  async list(): Promise<List<User>> {
+    try {
+      const users = await UserModel.find({});
+      if (!users) throw userNotFoundError;
+      users.forEach((it) => this.toUserObject(it));
+      return users;
+    } catch (e) {
+      this.logger.error(e);
+      throw e;
+    }
+  }
+
+  async listShelters(): Promise<List<User>> {
+    try {
+      const users = await UserModel.find({ adopter: false });
+      if (!users) throw userNotFoundError;
+      users.forEach((it) => this.toUserObject(it));
+      return users;
+    } catch (e) {
+      this.logger.error(e);
+      throw e;
+    }
+  }
+
+  async listSheltersByName(nomeRegex: RegExp): Promise<List<User>> {
+    try {
+      const users = await UserModel.find({ name: nomeRegex, adopter: false });
+      if (!users) throw userNotFoundError;
+      users.forEach((it) => this.toUserObject(it));
+      return users;
+    } catch (error) {
+      this.logger.error(error);
+      throw error;
+    }
+  }
+
+  async listAdopters(): Promise<List<User>> {
+    try {
+      const users = await UserModel.find({ adopter: true });
+      if (!users) throw userNotFoundError;
+      users.forEach((it) => this.toUserObject(it));
+      return users;
+    } catch (e) {
+      this.logger.error(e);
+      throw e;
+    }
+  }
+
+  async listAdoptersByName(nomeRegex: RegExp): Promise<List<User>> {
+    try {
+      const users = await UserModel.find({ name: nomeRegex, adopter: true });
+      if (!users) throw userNotFoundError;
+      users.forEach((it) => this.toUserObject(it));
+      return users;
+    } catch (error) {
+      this.logger.error(error);
+      throw error;
+    }
+  }
+
+  async update(userId: string, userInfo: User): Promise<User> {
+    try {
+      const user = await UserModel.findByIdAndUpdate(userId, userInfo);
+      if (!user) throw userNotFoundError;
+      return this.toUserObject(user);
+    } catch (e) {
+      this.logger.error(e);
+      throw e;
+    }
+  }
+
+  async delete(userId: string): Promise<User> {
+    try {
+      const user = await UserModel.findByIdAndDelete(userId);
+      if (!user) throw userNotFoundError;
+      return this.toUserObject(user);
     } catch (e) {
       this.logger.error(e);
       throw e;
@@ -106,52 +195,6 @@ export class UserRepository {
       this.logger.error(error);
       throw error;
     }
-  }
-
-  async recuperarTodasOngs(): Promise<User[]> {
-    try {
-      const ongs = await UserModel.find({ adopter: false });
-
-      const ongsObject: User[] = [];
-
-      ongs.forEach((ong) => {
-        ongsObject.push(this.toUserObject(ong));
-      });
-
-      return ongsObject;
-    } catch (error) {
-      this.logger.error(error);
-      throw error;
-    }
-  }
-
-  async recuperarOngNome(nomeRegex: RegExp): Promise<User[]> {
-    try {
-      const ongs = await UserModel.find({ name: nomeRegex });
-
-      const ongsObject: User[] = [];
-
-      ongs.forEach((ong) => {
-        ongsObject.push(this.toUserObject(ong));
-      });
-
-      return ongsObject;
-    } catch (error) {
-      this.logger.error(error);
-      throw error;
-    }
-  }
-
-  public toTodasOngsObject(user: User, address: Address): TodasOngsResponse {
-    return new TodasOngsResponse({
-      id: user.id,
-      adopter: user.adopter,
-      name: user.name,
-      cpfOrCnpj: user.cpfOrCnpj,
-      picture: user.picture,
-      verified: user.verified,
-      address: address,
-    });
   }
 
   private toUserObject(user: IUserSchema): User {

@@ -15,34 +15,60 @@ export class AdoptionController {
   router: express.Application;
 
   constructor() {
-    this.router = express().post('/', this.create);
+    this.router = express()
+      .post('/create', this.create)
+      .get('/list', this.list)
+      .get('/find/:id', this.find)
+      .put('/update/:id', this.update)
+      .delete('/delete/:id', this.delete);
   }
 
   create = async (request: Request, response: Response): Promise<void> => {
     try {
-      const { date, status, dogId, userId } = request.body.data;
-
+      const { date, status, dogId, userId } = request.body;
       const adoption = await this.adoptionFactory.call(date, status, dogId, userId);
       const createdAdoption = await this.adoptionRepository.create(adoption);
-
       response.status(201).send({ data: createdAdoption });
     } catch (e) {
       this.errorHandler(e, response);
     }
   };
 
-  // login = async (request: Request, response: Response): Promise<void> => {
-  //   try {
-  //     const { email, password } = request.body.data;
+  find = async (request: Request, response: Response): Promise<void> => {
+    try {
+      const readedAdoption = await this.adoptionRepository.find(request.params.id);
+      response.status(201).send({ data: readedAdoption });
+    } catch (e) {
+      this.errorHandler(e, response);
+    }
+  };
 
-  //     const adoption = await this.adoptionFactory.call(email, password);
-  //     const createdAdoption = await this.adoptionRepository.create(adoption);
+  list = async (_: Request, response: Response): Promise<void> => {
+    try {
+      const listedAdoptions = await this.adoptionRepository.list();
+      response.status(201).send({ data: listedAdoptions });
+    } catch (e) {
+      this.errorHandler(e, response);
+    }
+  };
 
-  //     response.status(201).send({ data: createdAdoption });
-  //   } catch (e) {
-  //     this.errorHandler(e, response);
-  //   }
-  // };
+  update = async (request: Request, response: Response): Promise<void> => {
+    try {
+      const updatedAdoption = await this.adoptionRepository.update(request.params.id, request.body);
+      response.status(201).send({ data: updatedAdoption });
+    } catch (e) {
+      this.errorHandler(e, response);
+    }
+  };
+
+  delete = async (request: Request, response: Response): Promise<void> => {
+    try {
+      const deletedAdoption = await this.adoptionRepository.delete(request.params.id);
+      response.status(201).send({ data: deletedAdoption });
+    } catch (e) {
+      this.errorHandler(e, response);
+    }
+  };
 
   private errorHandler(e: any, response: Response): Response {
     if (e.name === 'AdoptionExists') return response.status(409).send({ error: { detail: e.message } });

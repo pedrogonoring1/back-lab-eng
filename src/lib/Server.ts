@@ -12,6 +12,7 @@ import http from 'http';
 import { UserController } from '../controllers/UserController';
 import { AddressController } from '../controllers/AddressController';
 import { DogController } from '../controllers/DogController';
+import { AdoptionController } from '../controllers/AdoptionController';
 
 @injectable()
 class Server {
@@ -25,6 +26,7 @@ class Server {
     @inject('Logger') logger: Logger,
     @inject(UserController) userController: UserController,
     @inject(AddressController) addressController: AddressController,
+    @inject(AdoptionController) adoptionController: AdoptionController,
     @inject(DogController) dogController: DogController
   ) {
     this.port = settings.port;
@@ -38,6 +40,7 @@ class Server {
       .use(cors())
       .use('/user', userController.router)
       .use('/address', addressController.router)
+      .use('/adoption', adoptionController.router)
       .use('/dog', dogController.router)
       .use(this.authErrorHandler)
       .use(this.generalErrorHandler);

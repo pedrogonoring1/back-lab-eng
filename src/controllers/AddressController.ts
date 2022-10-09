@@ -15,7 +15,12 @@ export class AddressController {
   router: express.Application;
 
   constructor() {
-    this.router = express().post('/address/create', this.create);
+    this.router = express()
+      .post('/create', this.create)
+      .get('/list', this.list)
+      .get('/find/:id', this.find)
+      .put('/update/:id', this.update)
+      .delete('/delete/:id', this.delete);
   }
 
   create = async (request: Request, response: Response): Promise<void> => {
@@ -24,6 +29,42 @@ export class AddressController {
       const address = await this.addressFactory.call(street, number, neighborhood, city, state, cep);
       const createdAddress = await this.addressRepository.create(address);
       response.status(201).send({ data: createdAddress });
+    } catch (e) {
+      this.errorHandler(e, response);
+    }
+  };
+
+  find = async (request: Request, response: Response): Promise<void> => {
+    try {
+      const readedAddress = await this.addressRepository.find(request.params.id);
+      response.status(201).send({ data: readedAddress });
+    } catch (e) {
+      this.errorHandler(e, response);
+    }
+  };
+
+  list = async (_: Request, response: Response): Promise<void> => {
+    try {
+      const listedAddresses = await this.addressRepository.list();
+      response.status(201).send({ data: listedAddresses });
+    } catch (e) {
+      this.errorHandler(e, response);
+    }
+  };
+
+  update = async (request: Request, response: Response): Promise<void> => {
+    try {
+      const updatedAddress = await this.addressRepository.update(request.params.id, request.body);
+      response.status(201).send({ data: updatedAddress });
+    } catch (e) {
+      this.errorHandler(e, response);
+    }
+  };
+
+  delete = async (request: Request, response: Response): Promise<void> => {
+    try {
+      const deletedAddress = await this.addressRepository.delete(request.params.id);
+      response.status(201).send({ data: deletedAddress });
     } catch (e) {
       this.errorHandler(e, response);
     }

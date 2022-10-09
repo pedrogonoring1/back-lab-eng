@@ -7,8 +7,17 @@ dogExistsError.name = 'DogExists';
 export const adoptionExistsError = new Error('Adoção já existe');
 adoptionExistsError.name = 'AdoptionExists';
 
+export const dogNotFoundError = new Error('Cachorro não foi encontrado');
+dogNotFoundError.name = 'DogNotFound';
+
 export const userNotFoundError = new Error('Usuário não foi encontrado');
 userNotFoundError.name = 'UserNotFound';
+
+export const addressNotFoundError = new Error('Endereço não foi encontrado');
+addressNotFoundError.name = 'AddressNotFound';
+
+export const adoptionNotFoundError = new Error('Adoção não foi encontrado');
+adoptionNotFoundError.name = 'AdoptionNotFound';
 
 export const incorrectPasswordError = new Error('Senha incorreta');
 incorrectPasswordError.name = 'IncorrectPassword';

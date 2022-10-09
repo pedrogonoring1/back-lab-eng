@@ -45,6 +45,12 @@ const DogSchema: Schema = new Schema({
     type: Boolean,
     required: true,
   },
+
+  shelter: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: false,
+  },
 });
 
 export default mongoose.model<IDogSchema>('Dog', DogSchema);
