@@ -47,7 +47,7 @@ const DogSchema: Schema = new Schema({
   },
 
   shelter: {
-    type: mongoose.Schema.Types.ObjectId,
+    type: String,
     ref: 'User',
     required: false,
   },
