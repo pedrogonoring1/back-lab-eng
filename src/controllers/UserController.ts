@@ -34,6 +34,7 @@ export class UserController {
       .get('/find/:id', this.find)
       .get('/find/:cpfOrCnpj', this.findByCpfOrCnpj)
       .put('/update/:id', this.update)
+      .put('/update-password/:id', this.updatePassword)
       .put('/reset-password', this.forgotPassword)
       .put('/reset-password/finish', this.forgotPasswordFinish)
       .delete('/delete/:id', this.delete);
@@ -139,6 +140,17 @@ export class UserController {
   update = async (request: Request, response: Response): Promise<void> => {
     try {
       const updatedUser = await this.userRepository.update(request.params.id, request.body);
+      response.status(201).send({ data: updatedUser });
+    } catch (e) {
+      this.errorHandler(e, response);
+    }
+  };
+
+  updatePassword = async (request: Request, response: Response): Promise<void> => {
+    try {
+      const userID = request.params['id'];
+      const newPassword = request.body.password;
+      const updatedUser = await this.userRepository.updatePassword(userID, newPassword);
       response.status(201).send({ data: updatedUser });
     } catch (e) {
       this.errorHandler(e, response);
