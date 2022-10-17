@@ -119,6 +119,19 @@ export class UserRepository {
     }
   }
 
+  async updatePassword(userId: string, newPassword: string): Promise<User> {
+    try {
+      const user = await UserModel.findById(userId);
+      user.password = newPassword;
+      await user.save();
+      if (!user) throw userNotFoundError;
+      return this.toUserObject(user);
+    } catch (e) {
+      this.logger.error(e);
+      throw e;
+    }
+  }
+
   async delete(userId: string): Promise<User> {
     try {
       const user = await UserModel.findByIdAndDelete(userId);
