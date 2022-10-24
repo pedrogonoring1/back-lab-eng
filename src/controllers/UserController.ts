@@ -37,6 +37,7 @@ export class UserController {
       .put('/update-password/:id', this.updatePassword)
       .put('/reset-password', this.forgotPassword)
       .put('/reset-password/finish', this.forgotPasswordFinish)
+      .put('/block/:id', this.block)
       .delete('/delete/:id', this.delete);
   }
 
@@ -161,6 +162,15 @@ export class UserController {
     try {
       const deletedUser = await this.userRepository.delete(request.params.id);
       response.status(201).send({ data: deletedUser });
+    } catch (e) {
+      this.errorHandler(e, response);
+    }
+  };
+
+  block = async (request: Request, response: Response): Promise<void> => {
+    try {
+      const blockedUser = await this.userRepository.block(request.params.id);
+      response.status(201).send({ data: blockedUser });
     } catch (e) {
       this.errorHandler(e, response);
     }
