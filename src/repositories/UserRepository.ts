@@ -143,6 +143,19 @@ export class UserRepository {
     }
   }
 
+  async block(userId: string): Promise<User> {
+    try {
+      const user = await UserModel.findById(userId);
+      if (!user) throw userNotFoundError;
+      user.verified = false;
+      await user.save();
+      return this.toUserObject(user);
+    } catch (e) {
+      this.logger.error(e);
+      throw e;
+    }
+  }
+
   async findByEmail(email: string): Promise<User> {
     try {
       const user = await UserModel.findOne({ email: email }).select('+password');
