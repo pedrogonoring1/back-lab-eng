@@ -29,6 +29,7 @@ export class UserController {
       .get('/list', this.list)
       .get('/listShelters', this.listShelters)
       .get('/listShelters/:name', this.listSheltersByName)
+      .get('/listNewShelters/:verified', this.listNewShelters)
       .get('/listAdopters', this.listAdopters)
       .get('/listAdopters/:name', this.listAdoptersByName)
       .get('/find/:id', this.find)
@@ -116,6 +117,16 @@ export class UserController {
       this.errorHandler(e, response);
     }
   };
+
+  listNewShelters = async (request: Request, response: Response): Promise<void> => {
+    try{
+      const verified = request.params['verified'];
+      const listedNewShelters = await this.userRepository.listSheltersNotVerified(verified);
+      response.status(200).send({data:listedNewShelters, password: undefined})
+    } catch (e) {
+      this.errorHandler(e, response);
+    }
+  }
 
   listAdopters = async (_: Request, response: Response): Promise<void> => {
     try {
