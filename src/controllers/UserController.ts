@@ -28,6 +28,7 @@ export class UserController {
       .post('/login', this.login)
       .get('/list', this.list)
       .get('/listShelters', this.listShelters)
+      .get('/listUnverifiedShelters', this.listUnverifiedShelters)
       .get('/listShelters/:name', this.listSheltersByName)
       .get('/listAdopters', this.listAdopters)
       .get('/listAdopters/:name', this.listAdoptersByName)
@@ -112,6 +113,15 @@ export class UserController {
       const shelterAlias = request.params['nome'].replace(/(^\w{1})|(\s+\w{1})/g, (letra) => letra.toUpperCase());
       const regex = new RegExp(shelterAlias, 'g');
       const users = await this.userRepository.listSheltersByName(regex);
+      response.status(200).send({ data: { ...users, password: undefined } });
+    } catch (e) {
+      this.errorHandler(e, response);
+    }
+  };
+
+  listUnverifiedShelters = async (request: Request, response: Response): Promise<void> => {
+    try {
+      const users = await this.userRepository.listUnverifiedShelters();
       response.status(200).send({ data: { ...users, password: undefined } });
     } catch (e) {
       this.errorHandler(e, response);
