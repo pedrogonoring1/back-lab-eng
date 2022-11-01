@@ -18,8 +18,11 @@ export class AdoptionController {
     this.router = express()
       .post('/create', this.create)
       .get('/list', this.list)
+      .get('/listInProgressByShelter/:id', this.listInProgressByShelter)
       .get('/find/:id', this.find)
       .put('/update/:id', this.update)
+      .put('/approveAdoption/:id', this.approveAdoption)
+      .put('/refuseAdoption/:id', this.refuseAdoption)
       .delete('/delete/:id', this.delete);
   }
 
@@ -52,6 +55,15 @@ export class AdoptionController {
     }
   };
 
+  listInProgressByShelter = async (request: Request, response: Response): Promise<void> => {
+    try {
+      const listedAdoptions = await this.adoptionRepository.listInProgressByShelter(request.params.id);
+      response.status(201).send({ data: listedAdoptions });
+    } catch (e) {
+      this.errorHandler(e, response);
+    }
+  };
+
   update = async (request: Request, response: Response): Promise<void> => {
     try {
       const updatedAdoption = await this.adoptionRepository.update(request.params.id, request.body);
@@ -65,6 +77,24 @@ export class AdoptionController {
     try {
       const deletedAdoption = await this.adoptionRepository.delete(request.params.id);
       response.status(201).send({ data: deletedAdoption });
+    } catch (e) {
+      this.errorHandler(e, response);
+    }
+  };
+
+  approveAdoption = async (request: Request, response: Response): Promise<void> => {
+    try {
+      const approvedAdoption = await this.adoptionRepository.approveAdoption(request.params.id);
+      response.status(201).send({ data: approvedAdoption });
+    } catch (e) {
+      this.errorHandler(e, response);
+    }
+  };
+
+  refuseAdoption = async (request: Request, response: Response): Promise<void> => {
+    try {
+      const refusedAdoption = await this.adoptionRepository.refuseAdoption(request.params.id);
+      response.status(201).send({ data: refusedAdoption });
     } catch (e) {
       this.errorHandler(e, response);
     }

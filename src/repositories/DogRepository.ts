@@ -49,7 +49,6 @@ export class DogRepository {
   async listByShelter(shelterId: string): Promise<List<Dog>> {
     try {
       const dogs = await DogModel.find({ shelter: shelterId });
-      console.log('dogs', dogs);
       if (!dogs) throw dogNotFoundError;
       dogs.forEach((it) => this.toDogObject(it));
       return dogs;

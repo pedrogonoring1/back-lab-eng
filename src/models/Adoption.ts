@@ -13,21 +13,23 @@ const AdoptionSchema: Schema = new Schema({
     required: true,
   },
 
+  // Andamento: 0, Aprovado: 1, Recusado: 2
   status: {
     type: Number,
     required: true,
+    default: 0,
   },
 
   dog: {
-    type: mongoose.Schema.Types.ObjectId,
+    type: String,
     ref: 'Dog',
     required: true,
   },
 
   adopter: {
-    type: mongoose.Schema.Types.ObjectId,
+    type: String,
     ref: 'User',
-    required: false,
+    required: true,
   },
 });
 

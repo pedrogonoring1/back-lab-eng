@@ -49,7 +49,7 @@ const DogSchema: Schema = new Schema({
   shelter: {
     type: String,
     ref: 'User',
-    required: false,
+    required: true,
   },
 });
 

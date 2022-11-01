@@ -29,7 +29,6 @@ export class DogController {
 
   create = async (request: Request, response: Response): Promise<void> => {
     try {
-      console.log('teste', request.body);
       const { name, age, gender, size, history, picture, adopted } = request.body;
       const dog = await this.dogFactory.call(name, age, gender, size, history, picture, adopted);
       const createdDog = await this.dogRepository.create(dog);
@@ -60,11 +59,9 @@ export class DogController {
   listByShelter = async (request: Request, response: Response): Promise<void> => {
     try {
       const readedShelter = await this.userRepository.find(request.params.id);
-      console.log('readedShelter', readedShelter);
       if (readedShelter.adopter) response.status(409).send({ error: 'Usuário não é um abrigo.' });
 
       const listedDogs = await this.dogRepository.listByShelter(readedShelter.id);
-      console.log('listedDogs', listedDogs);
       response.status(201).send({ data: listedDogs });
     } catch (e) {
       this.errorHandler(e, response);

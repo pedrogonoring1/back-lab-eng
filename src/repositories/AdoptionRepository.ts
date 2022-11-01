@@ -1,5 +1,6 @@
 import { inject, injectable } from 'inversify';
 import { Logger } from 'winston';
+import { List } from 'lodash';
 
 import AdoptionModel, { IAdoptionSchema } from '../models/Adoption';
 import Settings from '../types/Settings';
@@ -35,9 +36,23 @@ export class AdoptionRepository {
     }
   }
 
-  async list(): Promise<Adoption[]> {
+  async list(): Promise<List<Adoption>> {
     try {
-      const adoptions = await AdoptionModel.find({});
+      const adoptions = await AdoptionModel.find({}).populate('dog').populate('adopter');
+      if (!adoptions) throw adoptionNotFoundError;
+      adoptions.forEach((it) => this.toAdoptionObject(it));
+      return adoptions;
+    } catch (e) {
+      this.logger.error(e);
+      throw e;
+    }
+  }
+
+  async listInProgressByShelter(shelterId: string): Promise<List<Adoption>> {
+    try {
+      const adoptions = await AdoptionModel.find({ status: 0 })
+        .populate({ path: 'dog', match: { shelter: { $eq: shelterId } } })
+        .populate('adopter');
       if (!adoptions) throw adoptionNotFoundError;
       adoptions.forEach((it) => this.toAdoptionObject(it));
       return adoptions;
@@ -61,6 +76,28 @@ export class AdoptionRepository {
   async delete(adoptionId: string): Promise<Adoption> {
     try {
       const adoption = await AdoptionModel.findByIdAndDelete(adoptionId);
+      if (!adoption) throw adoptionNotFoundError;
+      return this.toAdoptionObject(adoption);
+    } catch (e) {
+      this.logger.error(e);
+      throw e;
+    }
+  }
+
+  async approveAdoption(adoptionId: string): Promise<Adoption> {
+    try {
+      const adoption = await AdoptionModel.findByIdAndUpdate(adoptionId, { status: 1 });
+      if (!adoption) throw adoptionNotFoundError;
+      return this.toAdoptionObject(adoption);
+    } catch (e) {
+      this.logger.error(e);
+      throw e;
+    }
+  }
+
+  async refuseAdoption(adoptionId: string): Promise<Adoption> {
+    try {
+      const adoption = await AdoptionModel.findByIdAndUpdate(adoptionId, { status: 2 });
       if (!adoption) throw adoptionNotFoundError;
       return this.toAdoptionObject(adoption);
     } catch (e) {
