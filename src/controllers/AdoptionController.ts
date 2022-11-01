@@ -18,7 +18,10 @@ export class AdoptionController {
     this.router = express()
       .post('/create', this.create)
       .get('/list', this.list)
-      .get('/listInProgressByShelter/:id', this.listInProgressByShelter)
+      .get('/listByShelter/:id', this.listByShelter)
+      .get('/listByShelterInProgress/:id', this.listByShelterInProgress)
+      .get('/listByShelterApproved/:id', this.listByShelterApproved)
+      .get('/listByShelterRefused/:id', this.listByShelterRefused)
       .get('/find/:id', this.find)
       .put('/update/:id', this.update)
       .put('/approveAdoption/:id', this.approveAdoption)
@@ -55,9 +58,36 @@ export class AdoptionController {
     }
   };
 
-  listInProgressByShelter = async (request: Request, response: Response): Promise<void> => {
+  listByShelter = async (request: Request, response: Response): Promise<void> => {
     try {
-      const listedAdoptions = await this.adoptionRepository.listInProgressByShelter(request.params.id);
+      const listedAdoptions = await this.adoptionRepository.listByShelter(request.params.id);
+      response.status(201).send({ data: listedAdoptions });
+    } catch (e) {
+      this.errorHandler(e, response);
+    }
+  };
+
+  listByShelterInProgress = async (request: Request, response: Response): Promise<void> => {
+    try {
+      const listedAdoptions = await this.adoptionRepository.listByShelterInProgress(request.params.id);
+      response.status(201).send({ data: listedAdoptions });
+    } catch (e) {
+      this.errorHandler(e, response);
+    }
+  };
+
+  listByShelterApproved = async (request: Request, response: Response): Promise<void> => {
+    try {
+      const listedAdoptions = await this.adoptionRepository.listByShelterApproved(request.params.id);
+      response.status(201).send({ data: listedAdoptions });
+    } catch (e) {
+      this.errorHandler(e, response);
+    }
+  };
+
+  listByShelterRefused = async (request: Request, response: Response): Promise<void> => {
+    try {
+      const listedAdoptions = await this.adoptionRepository.listByShelterRefused(request.params.id);
       response.status(201).send({ data: listedAdoptions });
     } catch (e) {
       this.errorHandler(e, response);

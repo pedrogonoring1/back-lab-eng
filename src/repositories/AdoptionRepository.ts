@@ -48,9 +48,51 @@ export class AdoptionRepository {
     }
   }
 
-  async listInProgressByShelter(shelterId: string): Promise<List<Adoption>> {
+  async listByShelter(shelterId: string): Promise<List<Adoption>> {
+    try {
+      const adoptions = await AdoptionModel.find()
+        .populate({ path: 'dog', match: { shelter: { $eq: shelterId } } })
+        .populate('adopter');
+      if (!adoptions) throw adoptionNotFoundError;
+      adoptions.forEach((it) => this.toAdoptionObject(it));
+      return adoptions;
+    } catch (e) {
+      this.logger.error(e);
+      throw e;
+    }
+  }
+
+  async listByShelterInProgress(shelterId: string): Promise<List<Adoption>> {
     try {
       const adoptions = await AdoptionModel.find({ status: 0 })
+        .populate({ path: 'dog', match: { shelter: { $eq: shelterId } } })
+        .populate('adopter');
+      if (!adoptions) throw adoptionNotFoundError;
+      adoptions.forEach((it) => this.toAdoptionObject(it));
+      return adoptions;
+    } catch (e) {
+      this.logger.error(e);
+      throw e;
+    }
+  }
+
+  async listByShelterApproved(shelterId: string): Promise<List<Adoption>> {
+    try {
+      const adoptions = await AdoptionModel.find({ status: 1 })
+        .populate({ path: 'dog', match: { shelter: { $eq: shelterId } } })
+        .populate('adopter');
+      if (!adoptions) throw adoptionNotFoundError;
+      adoptions.forEach((it) => this.toAdoptionObject(it));
+      return adoptions;
+    } catch (e) {
+      this.logger.error(e);
+      throw e;
+    }
+  }
+
+  async listByShelterRefused(shelterId: string): Promise<List<Adoption>> {
+    try {
+      const adoptions = await AdoptionModel.find({ status: 2 })
         .populate({ path: 'dog', match: { shelter: { $eq: shelterId } } })
         .populate('adopter');
       if (!adoptions) throw adoptionNotFoundError;
