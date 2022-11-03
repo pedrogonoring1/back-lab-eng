@@ -43,6 +43,7 @@ const DogSchema: Schema = new Schema({
 
   adopted: {
     type: Boolean,
+    default: false,
     required: true,
   },
 
