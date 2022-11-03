@@ -83,6 +83,18 @@ export class UserRepository {
       throw e;
     }
   }
+  
+  async listUnverifiedShelters(): Promise<List<User>> {
+    try {
+      const users = await UserModel.find({ adopter: false, verified: false });
+      if (!users) throw userNotFoundError;
+      users.forEach((it) => this.toUserObject(it));
+      return users;
+    } catch (e) {
+      this.logger.error(e);
+      throw e;
+    }
+  }
 
   async listSheltersByName(nomeRegex: RegExp): Promise<List<User>> {
     try {
@@ -148,6 +160,19 @@ export class UserRepository {
     try {
       const user = await UserModel.findByIdAndDelete(userId);
       if (!user) throw userNotFoundError;
+      return this.toUserObject(user);
+    } catch (e) {
+      this.logger.error(e);
+      throw e;
+    }
+  }
+
+  async block(userId: string): Promise<User> {
+    try {
+      const user = await UserModel.findById(userId);
+      if (!user) throw userNotFoundError;
+      user.verified = false;
+      await user.save();
       return this.toUserObject(user);
     } catch (e) {
       this.logger.error(e);

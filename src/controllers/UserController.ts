@@ -28,6 +28,7 @@ export class UserController {
       .post('/login', this.login)
       .get('/list', this.list)
       .get('/listShelters', this.listShelters)
+      .get('/listUnverifiedShelters', this.listUnverifiedShelters)
       .get('/listShelters/:name', this.listSheltersByName)
       .get('/listNewShelters/:verified', this.listNewShelters)
       .get('/listAdopters', this.listAdopters)
@@ -38,6 +39,7 @@ export class UserController {
       .put('/update-password/:id', this.updatePassword)
       .put('/reset-password', this.forgotPassword)
       .put('/reset-password/finish', this.forgotPasswordFinish)
+      .put('/block/:id', this.block)
       .delete('/delete/:id', this.delete);
   }
 
@@ -128,6 +130,15 @@ export class UserController {
     }
   }
 
+  listUnverifiedShelters = async (request: Request, response: Response): Promise<void> => {
+    try {
+      const users = await this.userRepository.listUnverifiedShelters();
+      response.status(200).send({ data: { ...users, password: undefined } });
+    } catch (e) {
+      this.errorHandler(e, response);
+    }
+  };
+
   listAdopters = async (_: Request, response: Response): Promise<void> => {
     try {
       const listedUsers = await this.userRepository.listAdopters();
@@ -172,6 +183,15 @@ export class UserController {
     try {
       const deletedUser = await this.userRepository.delete(request.params.id);
       response.status(201).send({ data: deletedUser });
+    } catch (e) {
+      this.errorHandler(e, response);
+    }
+  };
+
+  block = async (request: Request, response: Response): Promise<void> => {
+    try {
+      const blockedUser = await this.userRepository.block(request.params.id);
+      response.status(201).send({ data: blockedUser });
     } catch (e) {
       this.errorHandler(e, response);
     }
