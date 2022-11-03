@@ -18,6 +18,7 @@ export class AdoptionController {
     this.router = express()
       .post('/create', this.create)
       .get('/list', this.list)
+      .get('/listByAdopter/:id', this.listByAdopter)
       .get('/listByDog/:id', this.listByDog)
       .get('/listByShelter/:id', this.listByShelter)
       .get('/listByShelterInProgress/:id', this.listByShelterInProgress)
@@ -64,6 +65,15 @@ export class AdoptionController {
   listByShelter = async (request: Request, response: Response): Promise<void> => {
     try {
       const listedAdoptions = await this.adoptionRepository.listByShelter(request.params.id);
+      response.status(201).send({ data: listedAdoptions });
+    } catch (e) {
+      this.errorHandler(e, response);
+    }
+  };
+
+  listByAdopter = async (request: Request, response: Response): Promise<void> => {
+    try {
+      const listedAdoptions = await this.adoptionRepository.listByAdopter(request.params.id);
       response.status(201).send({ data: listedAdoptions });
     } catch (e) {
       this.errorHandler(e, response);

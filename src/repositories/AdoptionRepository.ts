@@ -49,6 +49,18 @@ export class AdoptionRepository {
     }
   }
 
+  async listByAdopter(adopterId: string): Promise<List<Adoption>> {
+    try {
+      const adoptions = await AdoptionModel.find({ adopter: adopterId }).populate('dog').populate('adopter');
+      if (!adoptions) throw adoptionNotFoundError;
+      adoptions.forEach((it) => this.toAdoptionObject(it));
+      return adoptions;
+    } catch (e) {
+      this.logger.error(e);
+      throw e;
+    }
+  }
+
   async listByDog(dogId: string): Promise<List<Adoption>> {
     try {
       const adoptions = await AdoptionModel.find({ dog: dogId }).populate('dog').populate('adopter');
