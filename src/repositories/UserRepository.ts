@@ -72,6 +72,18 @@ export class UserRepository {
     }
   }
 
+  async listUnverifiedShelters(): Promise<List<User>> {
+    try {
+      const users = await UserModel.find({ adopter: false, verified: false });
+      if (!users) throw userNotFoundError;
+      users.forEach((it) => this.toUserObject(it));
+      return users;
+    } catch (e) {
+      this.logger.error(e);
+      throw e;
+    }
+  }
+
   async listSheltersByName(nomeRegex: RegExp): Promise<List<User>> {
     try {
       const users = await UserModel.find({ name: nomeRegex, adopter: false });
