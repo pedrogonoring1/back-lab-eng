@@ -43,13 +43,14 @@ const DogSchema: Schema = new Schema({
 
   adopted: {
     type: Boolean,
+    default: false,
     required: true,
   },
 
   shelter: {
     type: String,
     ref: 'User',
-    required: false,
+    required: true,
   },
 });
 

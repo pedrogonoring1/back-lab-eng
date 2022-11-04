@@ -3,8 +3,8 @@ import mongoose, { Schema, Document } from 'mongoose';
 export interface IAdoptionSchema extends Document {
   date: Date;
   status: number;
-  dogId: string;
-  userId: string;
+  dog: string;
+  adopter: string;
 }
 
 const AdoptionSchema: Schema = new Schema({
@@ -13,21 +13,23 @@ const AdoptionSchema: Schema = new Schema({
     required: true,
   },
 
+  // Andamento: 0, Aprovado: 1, Recusado: 2
   status: {
     type: Number,
+    default: 0,
     required: true,
   },
 
   dog: {
-    type: mongoose.Schema.Types.ObjectId,
+    type: String,
     ref: 'Dog',
     required: true,
   },
 
   adopter: {
-    type: mongoose.Schema.Types.ObjectId,
+    type: String,
     ref: 'User',
-    required: false,
+    required: true,
   },
 });
 

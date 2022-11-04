@@ -60,6 +60,18 @@ export class UserRepository {
     }
   }
 
+  async listSheltersNotVerified(verified: string): Promise<List<User>> {
+    try {
+      const users = await UserModel.find({ adopter: false, verified: verified });
+      if (!users) throw userNotFoundError;
+      users.forEach((it) => this.toUserObject(it));
+      return users;
+    } catch (e) {
+      this.logger.error(e);
+      throw e;
+    }
+  }
+
   async listShelters(): Promise<List<User>> {
     try {
       const users = await UserModel.find({ adopter: false });
