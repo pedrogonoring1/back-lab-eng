@@ -27,15 +27,19 @@ export class UserController {
       .post('/create', this.create)
       .post('/login', this.login)
       .get('/list', this.list)
+      .get('/listNewShelters/:verified', this.listNewShelters)
       .get('/listShelters', this.listShelters)
+      .get('/listUnverifiedShelters', this.listUnverifiedShelters)
       .get('/listShelters/:name', this.listSheltersByName)
       .get('/listAdopters', this.listAdopters)
       .get('/listAdopters/:name', this.listAdoptersByName)
       .get('/find/:id', this.find)
       .get('/find/:cpfOrCnpj', this.findByCpfOrCnpj)
       .put('/update/:id', this.update)
+      .put('/update-password/:id', this.updatePassword)
       .put('/reset-password', this.forgotPassword)
       .put('/reset-password/finish', this.forgotPasswordFinish)
+      .put('/block/:id', this.block)
       .delete('/delete/:id', this.delete);
   }
 
@@ -116,6 +120,15 @@ export class UserController {
     }
   };
 
+  listUnverifiedShelters = async (request: Request, response: Response): Promise<void> => {
+    try {
+      const users = await this.userRepository.listUnverifiedShelters();
+      response.status(200).send({ data: { ...users, password: undefined } });
+    } catch (e) {
+      this.errorHandler(e, response);
+    }
+  };
+
   listAdopters = async (_: Request, response: Response): Promise<void> => {
     try {
       const listedUsers = await this.userRepository.listAdopters();
@@ -136,9 +149,30 @@ export class UserController {
     }
   };
 
+  listNewShelters = async (request: Request, response: Response): Promise<void> => {
+    try {
+      const verified = request.params['verified'];
+      const listedNewShelters = await this.userRepository.listSheltersNotVerified(verified);
+      response.status(200).send({ data: listedNewShelters, password: undefined });
+    } catch (e) {
+      this.errorHandler(e, response);
+    }
+  };
+
   update = async (request: Request, response: Response): Promise<void> => {
     try {
       const updatedUser = await this.userRepository.update(request.params.id, request.body);
+      response.status(201).send({ data: updatedUser });
+    } catch (e) {
+      this.errorHandler(e, response);
+    }
+  };
+
+  updatePassword = async (request: Request, response: Response): Promise<void> => {
+    try {
+      const userID = request.params['id'];
+      const newPassword = request.body.password;
+      const updatedUser = await this.userRepository.updatePassword(userID, newPassword);
       response.status(201).send({ data: updatedUser });
     } catch (e) {
       this.errorHandler(e, response);
@@ -149,6 +183,15 @@ export class UserController {
     try {
       const deletedUser = await this.userRepository.delete(request.params.id);
       response.status(201).send({ data: deletedUser });
+    } catch (e) {
+      this.errorHandler(e, response);
+    }
+  };
+
+  block = async (request: Request, response: Response): Promise<void> => {
+    try {
+      const blockedUser = await this.userRepository.block(request.params.id);
+      response.status(201).send({ data: blockedUser });
     } catch (e) {
       this.errorHandler(e, response);
     }

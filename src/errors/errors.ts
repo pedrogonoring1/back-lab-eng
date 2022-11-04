@@ -16,7 +16,7 @@ userNotFoundError.name = 'UserNotFound';
 export const addressNotFoundError = new Error('Endereço não foi encontrado');
 addressNotFoundError.name = 'AddressNotFound';
 
-export const adoptionNotFoundError = new Error('Adoção não foi encontrado');
+export const adoptionNotFoundError = new Error('Adoção não foi encontrada');
 adoptionNotFoundError.name = 'AdoptionNotFound';
 
 export const incorrectPasswordError = new Error('Senha incorreta');

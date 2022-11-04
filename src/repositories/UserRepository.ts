@@ -60,9 +60,33 @@ export class UserRepository {
     }
   }
 
+  async listSheltersNotVerified(verified: string): Promise<List<User>> {
+    try {
+      const users = await UserModel.find({ adopter: false, verified: verified });
+      if (!users) throw userNotFoundError;
+      users.forEach((it) => this.toUserObject(it));
+      return users;
+    } catch (e) {
+      this.logger.error(e);
+      throw e;
+    }
+  }
+
   async listShelters(): Promise<List<User>> {
     try {
       const users = await UserModel.find({ adopter: false });
+      if (!users) throw userNotFoundError;
+      users.forEach((it) => this.toUserObject(it));
+      return users;
+    } catch (e) {
+      this.logger.error(e);
+      throw e;
+    }
+  }
+
+  async listUnverifiedShelters(): Promise<List<User>> {
+    try {
+      const users = await UserModel.find({ adopter: false, verified: false });
       if (!users) throw userNotFoundError;
       users.forEach((it) => this.toUserObject(it));
       return users;
@@ -119,10 +143,36 @@ export class UserRepository {
     }
   }
 
+  async updatePassword(userId: string, newPassword: string): Promise<User> {
+    try {
+      const user = await UserModel.findById(userId);
+      user.password = newPassword;
+      await user.save();
+      if (!user) throw userNotFoundError;
+      return this.toUserObject(user);
+    } catch (e) {
+      this.logger.error(e);
+      throw e;
+    }
+  }
+
   async delete(userId: string): Promise<User> {
     try {
       const user = await UserModel.findByIdAndDelete(userId);
       if (!user) throw userNotFoundError;
+      return this.toUserObject(user);
+    } catch (e) {
+      this.logger.error(e);
+      throw e;
+    }
+  }
+
+  async block(userId: string): Promise<User> {
+    try {
+      const user = await UserModel.findById(userId);
+      if (!user) throw userNotFoundError;
+      user.verified = false;
+      await user.save();
       return this.toUserObject(user);
     } catch (e) {
       this.logger.error(e);
